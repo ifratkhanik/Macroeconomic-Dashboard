@@ -1,0 +1,1632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BD/US Macro Terminal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<style>
+  /* ============== DESIGN TOKENS ============== */
+  :root {
+    --bg: #0B0F14;
+    --surface: #131922;
+    --surface-2: #1A2230;
+    --border: #262F3B;
+    --text: #E8EAED;
+    --text-dim: #8B96A5;
+    --text-faint: #5C6878;
+    --accent: #D4A24E;
+    --accent-soft: #D4A24E22;
+    --accent-2: #4FA88A;
+    --danger: #C45B4F;
+    --us-accent: #5B8DEF;
+    --font-display: 'Source Serif 4', Georgia, serif;
+    --font-ui: 'Inter', -apple-system, sans-serif;
+    --font-mono: 'IBM Plex Mono', 'SF Mono', monospace;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-ui);
+    -webkit-font-smoothing: antialiased;
+    background-image:
+      radial-gradient(ellipse 900px 500px at 15% -10%, #D4A24E0F, transparent),
+      radial-gradient(ellipse 700px 500px at 100% 0%, #5B8DEF0C, transparent);
+  }
+  ::selection { background: var(--accent); color: #0B0F14; }
+  a { color: var(--accent); }
+
+  *:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+  }
+
+  /* ============== LOADING ============== */
+  #appLoading {
+    min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 14px; color: var(--text-dim); font-family: var(--font-mono); font-size: 13px; letter-spacing: 0.04em;
+  }
+  .loader-glyph {
+    width: 46px; height: 46px; border: 2px solid var(--border); border-top-color: var(--accent);
+    border-radius: 50%; animation: spin 0.9s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ============== TOPBAR ============== */
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 28px; border-bottom: 1px solid var(--border);
+    background: linear-gradient(180deg, #0D1218, #0B0F14);
+    position: sticky; top: 0; z-index: 20;
+  }
+  .brand { display: flex; align-items: baseline; gap: 10px; }
+  .brand-mark {
+    font-family: var(--font-display); font-size: 26px; color: var(--accent); font-weight: 600;
+  }
+  .brand-title {
+    font-family: var(--font-display); font-size: 19px; letter-spacing: 0.01em; font-weight: 600; color: var(--text);
+  }
+  .brand-sub {
+    font-family: var(--font-mono); font-size: 10.5px; color: var(--text-faint); letter-spacing: 0.12em; text-transform: uppercase;
+    margin-left: 2px;
+  }
+  .topbar-right { display: flex; align-items: center; gap: 18px; }
+  .clock {
+    font-family: var(--font-mono); font-size: 12.5px; color: var(--text-dim); letter-spacing: 0.03em;
+  }
+  .clock::before { content: "● "; color: var(--accent-2); }
+
+  /* ============== TABS ============== */
+  .tabs {
+    display: flex; gap: 4px; padding: 0 24px; border-bottom: 1px solid var(--border);
+    overflow-x: auto; background: var(--bg); position: sticky; top: 64px; z-index: 19;
+    scrollbar-width: thin;
+  }
+  .tab-btn {
+    background: none; border: none; color: var(--text-dim); font-family: var(--font-ui); font-size: 13.5px;
+    font-weight: 500; padding: 13px 16px; cursor: pointer; white-space: nowrap;
+    border-bottom: 2px solid transparent; transition: color 0.15s, border-color 0.15s;
+  }
+  .tab-btn:hover { color: var(--text); }
+  .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  main { max-width: 1240px; margin: 0 auto; padding: 28px 24px 80px; }
+  .tabpanel { display: none; }
+  .tabpanel.active { display: block; animation: fadein 0.25s ease; }
+  @keyframes fadein { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+  .section-eyebrow {
+    font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 6px;
+  }
+  .section-title {
+    font-family: var(--font-display); font-size: 22px; font-weight: 600; margin: 0 0 4px;
+  }
+  .section-desc { color: var(--text-dim); font-size: 13.5px; margin: 0 0 20px; max-width: 640px; }
+
+  /* ============== STAT CARDS / GRID ============== */
+  .grid-2x4, .overview-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 28px; }
+  .card-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  @media (max-width: 980px) { .overview-grid, .card-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 620px) { .overview-grid, .card-grid { grid-template-columns: 1fr; } }
+
+  .stat-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+    padding: 16px 16px 12px; cursor: pointer; transition: border-color 0.15s, transform 0.15s, background 0.15s;
+    position: relative; overflow: hidden;
+  }
+  .stat-card:hover { border-color: var(--accent); background: var(--surface-2); transform: translateY(-1px); }
+  .stat-card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+  .stat-label { font-size: 11.5px; color: var(--text-dim); font-weight: 500; line-height: 1.3; max-width: 85%; }
+  .cat-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; margin-top: 3px; }
+  .stat-value { font-family: var(--font-mono); font-size: 24px; font-weight: 600; color: var(--text); letter-spacing: -0.01em; }
+  .stat-meta { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; margin-bottom: 8px; }
+  .stat-date { font-family: var(--font-mono); font-size: 10.5px; color: var(--text-faint); }
+  .stat-delta { font-family: var(--font-mono); font-size: 11px; font-weight: 600; }
+  .delta-up { color: var(--accent-2); }
+  .delta-down { color: var(--danger); }
+  .delta-flat { color: var(--text-dim); }
+  .sparkline { width: 100%; height: 36px; display: block; }
+
+  /* ============== HERO CURVE (signature element) ============== */
+  .hero-curve {
+    background: radial-gradient(ellipse 600px 280px at 30% 0%, #D4A24E14, transparent), var(--surface);
+    border: 1px solid var(--border); border-radius: 14px; padding: 24px 26px 18px; margin-bottom: 28px;
+    position: relative;
+  }
+  .hero-curve-head { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 14px; flex-wrap: wrap; gap: 6px; }
+  .hero-curve-chart-wrap { height: 260px; filter: drop-shadow(0 0 14px #D4A24E33); }
+  #heroCurveLabel { font-family: var(--font-mono); font-size: 11.5px; color: var(--text-dim); }
+
+  .highlights-row { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 8px; }
+  @media (max-width: 760px) { .highlights-row { grid-template-columns: 1fr; } }
+  .highlight-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 18px 20px; }
+  .highlight-card h3 {
+    font-family: var(--font-display); font-size: 15.5px; margin: 0 0 12px; font-weight: 600;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .highlight-card h3::before { content: ""; width: 4px; height: 16px; background: var(--accent); border-radius: 2px; }
+  .highlight-card.us h3::before { background: var(--us-accent); }
+  .highlight-card ul { margin: 0; padding-left: 18px; font-size: 13px; line-height: 1.65; color: var(--text-dim); }
+  .highlight-card strong { color: var(--text); }
+
+  /* ============== GSEC TAB ============== */
+  .gsec-layout { display: grid; grid-template-columns: 1fr 280px; gap: 20px; }
+  @media (max-width: 900px) { .gsec-layout { grid-template-columns: 1fr; } }
+  .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+  .gsec-chart-wrap { height: 360px; filter: drop-shadow(0 0 10px #D4A24E22); margin-bottom: 6px; }
+  .chip-check {
+    display: flex; align-items: center; gap: 8px; padding: 8px 4px; font-size: 12.5px; color: var(--text-dim);
+    cursor: pointer; border-bottom: 1px solid var(--border);
+  }
+  .chip-check:last-child { border-bottom: none; }
+  .chip-check input { accent-color: var(--accent); }
+  .panel-title { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 10px; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  th { text-align: left; font-family: var(--font-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-faint); padding: 6px 8px; border-bottom: 1px solid var(--border); }
+  td { padding: 7px 8px; border-bottom: 1px solid var(--border); font-family: var(--font-mono); color: var(--text); }
+  td.dim { color: var(--text-faint); font-family: var(--font-ui); }
+  tr:last-child td { border-bottom: none; }
+
+  .gsec-edit-row { margin-top: 16px; }
+  .field-row { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+  input[type=text], input[type=number], input[type=date], input[type=password], select {
+    background: var(--bg); border: 1px solid var(--border); color: var(--text); border-radius: 6px;
+    padding: 8px 10px; font-family: var(--font-mono); font-size: 12.5px; width: 100%;
+  }
+  input::placeholder { color: var(--text-faint); }
+  .gsec-input { max-width: 110px; }
+
+  button {
+    font-family: var(--font-ui); cursor: pointer; border-radius: 7px; border: 1px solid var(--border);
+    background: var(--surface-2); color: var(--text); font-size: 12.5px; font-weight: 600; padding: 9px 16px;
+    transition: all 0.15s;
+  }
+  button:hover { border-color: var(--accent); color: var(--accent); }
+  button.primary { background: var(--accent); color: #0B0F14; border-color: var(--accent); }
+  button.primary:hover { background: #E5B564; color: #0B0F14; }
+  button.danger-outline:hover { border-color: var(--danger); color: var(--danger); }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+  .icon-btn-sm {
+    background: none; border: none; color: var(--text-faint); font-size: 13px; padding: 2px 6px;
+  }
+  .icon-btn-sm:hover { color: var(--danger); border: none; }
+
+  /* ============== COMPARE TAB ============== */
+  .compare-layout { display: grid; grid-template-columns: 260px 1fr; gap: 20px; }
+  @media (max-width: 900px) { .compare-layout { grid-template-columns: 1fr; } }
+  .compare-group { margin-bottom: 14px; }
+  .compare-group-label { font-family: var(--font-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); margin: 10px 0 2px; }
+  .compare-chart-wrap { height: 420px; }
+  .compare-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 10px; }
+  #compareCount { font-family: var(--font-mono); font-size: 11.5px; color: var(--text-dim); }
+
+  /* ============== SETTINGS TAB ============== */
+  .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  @media (max-width: 900px) { .settings-grid { grid-template-columns: 1fr; } }
+  .settings-label { font-size: 12.5px; color: var(--text-dim); margin: 14px 0 6px; display: block; }
+  .settings-hint { font-size: 11.5px; color: var(--text-faint); margin-top: 4px; line-height: 1.5; }
+  .btn-row { display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
+  .file-label {
+    display: inline-block; background: var(--surface-2); border: 1px solid var(--border); border-radius: 7px;
+    padding: 9px 16px; font-size: 12.5px; font-weight: 600; cursor: pointer;
+  }
+  .file-label:hover { border-color: var(--accent); color: var(--accent); }
+  #importInput { display: none; }
+  #syncStatusList { list-style: none; padding: 0; margin: 0; font-size: 12px; color: var(--text-dim); }
+  #syncStatusList li { padding: 8px 0; border-bottom: 1px solid var(--border); font-family: var(--font-mono); font-size: 11.5px; }
+
+  /* ============== MODAL ============== */
+  #modalOverlay {
+    position: fixed; inset: 0; background: #05070ACC; backdrop-filter: blur(3px);
+    display: none; align-items: center; justify-content: center; z-index: 100; padding: 20px;
+  }
+  #modalOverlay.open { display: flex; }
+  .modal-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+    width: 100%; max-width: 640px; max-height: 88vh; overflow-y: auto; padding: 26px 28px;
+  }
+  .modal-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px; }
+  #modalTitle { font-family: var(--font-display); font-size: 19px; font-weight: 600; margin: 0; }
+  #modalMeta { font-family: var(--font-mono); font-size: 11px; color: var(--text-dim); margin: 4px 0 12px; }
+  #modalNote { font-size: 12.5px; color: var(--text-dim); background: var(--bg); border-left: 2px solid var(--accent); padding: 9px 12px; border-radius: 4px; margin-bottom: 16px; }
+  .modal-chart-wrap { height: 220px; margin-bottom: 18px; }
+  #modalClose { background: none; border: none; color: var(--text-dim); font-size: 18px; padding: 4px 8px; }
+  #modalClose:hover { color: var(--danger); border: none; }
+  .modal-table-wrap { max-height: 180px; overflow-y: auto; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 16px; }
+  #modalAddForm { display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-end; }
+  #modalAddForm .field { flex: 1; min-width: 110px; }
+  #modalAddForm label { font-size: 10.5px; color: var(--text-faint); display: block; margin-bottom: 4px; }
+
+  /* ============== TOAST ============== */
+  .toast {
+    position: fixed; bottom: 22px; left: 50%; transform: translate(-50%, 20px);
+    background: var(--surface-2); border: 1px solid var(--accent); color: var(--text);
+    padding: 11px 20px; border-radius: 8px; font-size: 12.5px; opacity: 0; pointer-events: none;
+    transition: all 0.25s; z-index: 200; font-family: var(--font-ui);
+  }
+  .toast.show { opacity: 1; transform: translate(-50%, 0); }
+  .toast.toast-error { border-color: var(--danger); }
+
+  .dim { color: var(--text-faint); }
+</style>
+</head>
+<body>
+<div id="appLoading">
+  <div class="loader-glyph"></div>
+  <div>LOADING MACRO TERMINAL…</div>
+</div>
+
+<div id="appShell" style="display:none;">
+
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark">৳</span>
+      <span class="brand-title">BD/US Macro Terminal</span>
+      <span class="brand-sub">Fixed Income &amp; Money Market</span>
+    </div>
+    <div class="topbar-right">
+      <span class="clock" id="dhakaClock">—</span>
+    </div>
+  </header>
+
+  <nav class="tabs">
+    <button class="tab-btn active" data-tab="overviewTab">Overview</button>
+    <button class="tab-btn" data-tab="bdMacroTab">BD Macro</button>
+    <button class="tab-btn" data-tab="bdBankingTab">BD Banking</button>
+    <button class="tab-btn" data-tab="gsecTab">GSEC Yield Curve</button>
+    <button class="tab-btn" data-tab="usMacroTab">US Macro</button>
+    <button class="tab-btn" data-tab="commoditiesTab">Commodities</button>
+    <button class="tab-btn" data-tab="compareTab">Compare</button>
+    <button class="tab-btn" data-tab="settingsTab">Data &amp; Settings</button>
+  </nav>
+
+  <main>
+
+    <!-- ============ OVERVIEW ============ -->
+    <section class="tabpanel active" id="overviewTab">
+      <div class="section-eyebrow">Snapshot</div>
+      <h1 class="section-title">Key indicators at a glance</h1>
+      <p class="section-desc">Click any tile for full history, sourcing, and to add or edit data points.</p>
+      <div class="overview-grid" id="overviewGrid"></div>
+
+      <div class="hero-curve">
+        <div class="hero-curve-head">
+          <div>
+            <div class="section-eyebrow">Signature view</div>
+            <h2 class="section-title" style="font-size:19px;margin:0;">BD Government Securities Yield Curve</h2>
+          </div>
+          <span id="heroCurveLabel"></span>
+        </div>
+        <div class="hero-curve-chart-wrap"><canvas id="heroCurveChart"></canvas></div>
+      </div>
+
+      <div class="highlights-row">
+        <div class="highlight-card">
+          <h3>Bangladesh</h3>
+          <ul id="bdHighlights"></ul>
+        </div>
+        <div class="highlight-card us">
+          <h3>US &amp; Global</h3>
+          <ul id="usHighlights"></ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ BD MACRO ============ -->
+    <section class="tabpanel" id="bdMacroTab">
+      <div class="section-eyebrow">Bangladesh</div>
+      <h1 class="section-title">Macroeconomic indicators</h1>
+      <p class="section-desc">Inflation, reserves, exchange rate, external balance, money supply. Mostly manual entry — Bangladesh Bank has no public live API.</p>
+      <div class="card-grid" id="bdMacroGrid"></div>
+    </section>
+
+    <!-- ============ BD BANKING ============ -->
+    <section class="tabpanel" id="bdBankingTab">
+      <div class="section-eyebrow">Bangladesh</div>
+      <h1 class="section-title">Banking sector health</h1>
+      <p class="section-desc">Asset quality, rate spreads, and capital adequacy across scheduled banks.</p>
+      <div class="card-grid" id="bdBankingGrid"></div>
+    </section>
+
+    <!-- ============ GSEC YIELD CURVE ============ -->
+    <section class="tabpanel" id="gsecTab">
+      <div class="section-eyebrow">Bangladesh</div>
+      <h1 class="section-title">Government Securities yield curve</h1>
+      <p class="section-desc">Overlay snapshots to see how the curve has shifted, then save new auction cut-offs as they're published.</p>
+
+      <div class="gsec-layout">
+        <div class="panel">
+          <div class="gsec-chart-wrap"><canvas id="gsecChart"></canvas></div>
+        </div>
+        <div class="panel">
+          <div class="panel-title">Snapshots shown on chart</div>
+          <div id="gsecSnapList"></div>
+        </div>
+      </div>
+
+      <div class="gsec-layout" style="margin-top:18px;">
+        <div class="panel">
+          <div class="panel-title">Saved snapshots</div>
+          <table>
+            <thead><tr><th>Date</th><th>Label</th><th>Coverage</th><th></th></tr></thead>
+            <tbody id="gsecSnapTable"></tbody>
+          </table>
+        </div>
+        <div class="panel">
+          <div class="panel-title">Save a new snapshot</div>
+          <div class="field-row">
+            <input type="date" id="gsecNewDate" aria-label="Snapshot date">
+          </div>
+          <div class="field-row">
+            <input type="text" id="gsecNewLabel" placeholder="Label (e.g. Jun 2026 auction)">
+          </div>
+          <table class="gsec-edit-row">
+            <thead><tr><th>Tenor</th><th>Yield %</th></tr></thead>
+            <tbody id="gsecEditTableBody"></tbody>
+          </table>
+          <div class="btn-row">
+            <button class="primary" id="gsecSaveBtn">Save snapshot</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ US MACRO ============ -->
+    <section class="tabpanel" id="usMacroTab">
+      <div class="section-eyebrow">United States</div>
+      <h1 class="section-title">Macroeconomic indicators</h1>
+      <p class="section-desc">Live-refreshable from FRED — add your free API key under Data &amp; Settings.</p>
+      <div class="card-grid" id="usMacroGrid"></div>
+    </section>
+
+    <!-- ============ COMMODITIES ============ -->
+    <section class="tabpanel" id="commoditiesTab">
+      <div class="section-eyebrow">Global</div>
+      <h1 class="section-title">Commodity prices</h1>
+      <p class="section-desc">WTI and Brent crude — live-refreshable from EIA. Directly relevant to BD's import bill and inflation pass-through.</p>
+      <div class="card-grid" id="commoditiesGrid"></div>
+    </section>
+
+    <!-- ============ COMPARE ============ -->
+    <section class="tabpanel" id="compareTab">
+      <div class="section-eyebrow">Analysis</div>
+      <h1 class="section-title">Custom comparison</h1>
+      <p class="section-desc">Pick up to 5 series from any category — including individual GSEC tenors — to chart side by side.</p>
+
+      <div class="compare-layout">
+        <div class="panel">
+          <div class="panel-title">Series</div>
+          <div id="compareChecklist"></div>
+        </div>
+        <div class="panel">
+          <div class="compare-head">
+            <select id="compareModeToggle" style="width:auto;">
+              <option value="normalized">Normalized (index = 100)</option>
+              <option value="raw">Raw values (same axis)</option>
+            </select>
+            <span id="compareCount"></span>
+          </div>
+          <div class="compare-chart-wrap"><canvas id="compareChart"></canvas></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SETTINGS ============ -->
+    <section class="tabpanel" id="settingsTab">
+      <div class="section-eyebrow">Configuration</div>
+      <h1 class="section-title">Data &amp; settings</h1>
+      <p class="section-desc">API keys are stored privately in your browser via this artifact's storage — never sent anywhere except directly to FRED/EIA.</p>
+
+      <div class="settings-grid">
+        <div class="panel">
+          <div class="panel-title">Live data sources</div>
+
+          <label class="settings-label" for="fredKeyInput">FRED API key (US macro)</label>
+          <input type="password" id="fredKeyInput" placeholder="Paste your FRED API key">
+          <div class="settings-hint">Free, instant signup at <a href="https://fred.stlouisfed.org/docs/api/api_key.html" target="_blank" rel="noopener">fred.stlouisfed.org/docs/api/api_key.html</a></div>
+
+          <label class="settings-label" for="eiaKeyInput">EIA API key (crude oil prices)</label>
+          <input type="password" id="eiaKeyInput" placeholder="Paste your EIA API key">
+          <div class="settings-hint">Free, instant signup at <a href="https://www.eia.gov/opendata/register.php" target="_blank" rel="noopener">eia.gov/opendata/register.php</a></div>
+
+          <div class="btn-row">
+            <button class="primary" id="saveKeysBtn">Save keys</button>
+            <button id="refreshFredBtn">Refresh US data from FRED</button>
+            <button id="refreshEiaBtn">Refresh commodity prices from EIA</button>
+          </div>
+          <div class="settings-hint">Live refresh is best-effort — if a fetch fails (bad key, rate limit, or network), the indicator quietly keeps its last saved value. Bangladesh indicators have no public API and always need manual updates.</div>
+
+          <label class="settings-label">Last refresh</label>
+          <ul id="syncStatusList"></ul>
+        </div>
+
+        <div class="panel">
+          <div class="panel-title">Backup &amp; reset</div>
+          <p class="settings-hint">All your edits, snapshots, and saved keys live in this browser only. Export a backup periodically if this data matters.</p>
+          <div class="btn-row">
+            <button class="primary" id="exportBtn">Export backup (.json)</button>
+            <label class="file-label" for="importInput">Import backup</label>
+            <input type="file" id="importInput" accept="application/json">
+          </div>
+          <div class="btn-row">
+            <button class="danger-outline" id="resetBtn">Reset to seed data</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ============ INDICATOR DETAIL MODAL ============ -->
+<div id="modalOverlay">
+  <div class="modal-card">
+    <div class="modal-head">
+      <div>
+        <h2 id="modalTitle"></h2>
+        <div id="modalMeta"></div>
+      </div>
+      <button id="modalClose" aria-label="Close">✕</button>
+    </div>
+    <div id="modalNote"></div>
+    <div class="modal-chart-wrap"><canvas id="modalChart"></canvas></div>
+    <div class="panel-title">History</div>
+    <div class="modal-table-wrap">
+      <table>
+        <thead><tr><th>Date</th><th>Value</th><th>Note</th><th></th></tr></thead>
+        <tbody id="modalTableBody"></tbody>
+      </table>
+    </div>
+    <div class="panel-title">Add / update a data point</div>
+    <form id="modalAddForm">
+      <div class="field"><label for="modalDateInput">Date</label><input type="date" id="modalDateInput" required></div>
+      <div class="field"><label for="modalValueInput">Value</label><input type="number" step="any" id="modalValueInput" required></div>
+      <div class="field"><label for="modalLabelInput">Note (optional)</label><input type="text" id="modalLabelInput"></div>
+      <button type="submit" class="primary">Save</button>
+    </form>
+  </div>
+</div>
+
+<div class="toast" id="statusToast"></div>
+<script>
+// ============================================================
+// SEED DATA — researched June 2026. Sources noted per indicator.
+// This is the dashboard's starting dataset. All of it can be
+// edited, extended, or overridden from the Data & Settings tab.
+// ============================================================
+
+const SEED_INDICATORS = {
+
+  // ---------------- BANGLADESH MACRO ----------------
+  bd_cpi_yoy: {
+    name: "Headline CPI Inflation (YoY)", category: "bd_macro", unit: "%",
+    source: "Bangladesh Bureau of Statistics / Bangladesh Bank", freq: "Monthly",
+    note: "National CPI, point-to-point YoY.",
+    history: [
+      { date: "2025-12-01", value: 8.48 },
+      { date: "2026-01-01", value: 8.58 },
+      { date: "2026-02-01", value: 9.13 },
+      { date: "2026-03-01", value: 8.71 },
+      { date: "2026-04-01", value: 9.04 },
+      { date: "2026-05-01", value: 9.42 }
+    ]
+  },
+  bd_cpi_food: {
+    name: "Food Inflation (YoY)", category: "bd_macro", unit: "%",
+    source: "Bangladesh Bureau of Statistics", freq: "Monthly",
+    note: "Seed has one confirmed point — add prior months as you collect them.",
+    history: [ { date: "2026-05-01", value: 9.06 } ]
+  },
+  bd_cpi_nonfood: {
+    name: "Non-Food Inflation (YoY)", category: "bd_macro", unit: "%",
+    source: "Bangladesh Bureau of Statistics", freq: "Monthly",
+    note: "Seed has one confirmed point — add prior months as you collect them.",
+    history: [ { date: "2026-05-01", value: 9.71 } ]
+  },
+  bd_gdp_growth: {
+    name: "Real GDP Growth (Annual, FY basis)", category: "bd_macro", unit: "%",
+    source: "Bangladesh Bank / ADB Asian Development Outlook", freq: "Annual (FY)",
+    note: "FY2026 is ADB's April 2026 forecast (4.0%), not yet a final outturn. IMF/WB project 4.6–4.7% for FY26.",
+    history: [
+      { date: "2024-06-30", value: 5.82, label: "FY2024" },
+      { date: "2025-06-30", value: 3.97, label: "FY2025" },
+      { date: "2026-06-30", value: 4.0, label: "FY2026 (ADB f'cast)", forecast: true }
+    ]
+  },
+  bd_forex_reserves: {
+    name: "FX Reserves — Gross", category: "bd_macro", unit: "USD bn",
+    source: "Bangladesh Bank weekly reserve data", freq: "Weekly/Monthly",
+    note: "Gross reserves (not the lower BPM6/IMF-usable measure — see separate series).",
+    history: [
+      { date: "2026-02-01", value: 35.11 },
+      { date: "2026-06-15", value: 35.63, label: "43-month high" }
+    ]
+  },
+  bd_forex_reserves_bpm6: {
+    name: "FX Reserves — BPM6 (IMF-usable)", category: "bd_macro", unit: "USD bn",
+    source: "Bangladesh Bank / IMF", freq: "Monthly",
+    note: "Net usable reserves under the BPM6 definition, runs lower than the gross headline figure.",
+    history: [ { date: "2025-10-01", value: 32.0 } ]
+  },
+  bd_fx_rate: {
+    name: "Exchange Rate — USD/BDT", category: "bd_macro", unit: "BDT",
+    source: "Bangladesh Bank — VERIFY before relying on this", freq: "Daily",
+    note: "Placeholder under the crawling-peg band — replace with BB's daily mid-rate before use.",
+    history: [ { date: "2026-06-18", value: 122.50, label: "approximate — verify" } ]
+  },
+  bd_repo_rate: {
+    name: "Policy (Repo) Rate", category: "bd_macro", unit: "%",
+    source: "Bangladesh Bank Monetary Policy Statement", freq: "As changed",
+    note: "Held at 10.00% since 27 Oct 2024. Add earlier hikes if you want the full tightening-cycle path.",
+    history: [ { date: "2024-10-27", value: 10.00 } ]
+  },
+  bd_interbank_rate: {
+    name: "Call Money / Interbank Rate", category: "bd_macro", unit: "%",
+    source: "Bangladesh Bank", freq: "Monthly avg",
+    note: "",
+    history: [ { date: "2026-02-01", value: 9.90 } ]
+  },
+  bd_remittances: {
+    name: "Remittances (Monthly)", category: "bd_macro", unit: "USD mn",
+    source: "Bangladesh Bank", freq: "Monthly",
+    note: "",
+    history: [
+      { date: "2026-01-01", value: 3170.94, label: "3rd-highest month on record" },
+      { date: "2026-02-01", value: 3020.76 }
+    ]
+  },
+  bd_trade_balance: {
+    name: "Trade Balance", category: "bd_macro", unit: "BDT bn",
+    source: "Bangladesh Bank", freq: "Monthly",
+    note: "Negative = trade deficit.",
+    history: [ { date: "2025-12-01", value: -283.85 } ]
+  },
+  bd_exports: {
+    name: "Exports", category: "bd_macro", unit: "BDT bn",
+    source: "Bangladesh Bank", freq: "Monthly",
+    note: "April 2026 exports (USD terms) rose 32.9% YoY per FocusEconomics — add that print once you have the BDT figure.",
+    history: [ { date: "2025-12-01", value: 434.46 } ]
+  },
+  bd_imports: {
+    name: "Imports", category: "bd_macro", unit: "BDT bn",
+    source: "Bangladesh Bank", freq: "Monthly",
+    note: "",
+    history: [ { date: "2025-12-01", value: 718.31 } ]
+  },
+  bd_current_account: {
+    name: "Current Account Balance", category: "bd_macro", unit: "BDT bn",
+    source: "Bangladesh Bank", freq: "Monthly",
+    note: "FY2025 full-year current account was a slight surplus (~USD 149mn) — first surplus in 8 years. ADB sees a ~0.5% of GDP deficit in FY26.",
+    history: [ { date: "2025-11-01", value: 412.17 } ]
+  },
+  bd_m0: {
+    name: "Reserve Money (M0)", category: "bd_macro", unit: "BDT bn",
+    source: "Bangladesh Bank", freq: "Monthly",
+    note: "",
+    history: [ { date: "2026-01-01", value: 3121.66 } ]
+  },
+  bd_m1: {
+    name: "Narrow Money (M1)", category: "bd_macro", unit: "BDT bn",
+    source: "Bangladesh Bank", freq: "Monthly",
+    note: "",
+    history: [ { date: "2026-01-01", value: 4815.59 } ]
+  },
+  bd_m2: {
+    name: "Broad Money (M2)", category: "bd_macro", unit: "BDT bn",
+    source: "Bangladesh Bank", freq: "Monthly",
+    note: "",
+    history: [ { date: "2026-01-01", value: 22505.50 } ]
+  },
+  bd_credit_private: {
+    name: "Credit to Private Sector (Outstanding)", category: "bd_macro", unit: "BDT bn",
+    source: "Bangladesh Bank", freq: "Monthly",
+    note: "",
+    history: [ { date: "2026-01-01", value: 17079.95 } ]
+  },
+
+  // ---------------- BD BANKING SECTOR ----------------
+  bd_npl_ratio: {
+    name: "Non-Performing Loan (NPL) Ratio — System", category: "bd_banking", unit: "%",
+    source: "Bangladesh Bank", freq: "Quarterly",
+    note: "Spiked after the 2025 Asset Quality Reviews exposed previously-rescheduled defaults. Currently the highest NPL ratio of any banking system globally.",
+    history: [
+      { date: "2025-09-30", value: 35.7, label: "post-AQR peak" },
+      { date: "2025-12-31", value: 30.6 }
+    ]
+  },
+  bd_deposit_rate: {
+    name: "Weighted Avg. Deposit Rate (Scheduled Banks)", category: "bd_banking", unit: "%",
+    source: "Bangladesh Bank", freq: "Monthly",
+    note: "",
+    history: [
+      { date: "2026-01-01", value: 6.37 },
+      { date: "2026-02-01", value: 6.31 }
+    ]
+  },
+  bd_lending_rate: {
+    name: "Weighted Avg. Lending Rate (Scheduled Banks)", category: "bd_banking", unit: "%",
+    source: "Bangladesh Bank — dated, please refresh", freq: "Monthly",
+    note: "Last confirmed print is Sep-2024 (11.70%). Lending rates were freed from the 9% cap in 2024 — update with the latest BB scheduled-bank interest rate statistics.",
+    history: [
+      { date: "2024-06-30", value: 11.52 },
+      { date: "2024-09-30", value: 11.70 }
+    ]
+  },
+  bd_crar: {
+    name: "Capital Adequacy Ratio (CRAR) — System", category: "bd_banking", unit: "%",
+    source: "Bangladesh Bank Quarterly", freq: "Quarterly",
+    note: "Sharp Q1FY25 drop reflects AQR-driven provisioning; SCB sub-segment CRAR went negative (-2.48%) the same quarter.",
+    history: [
+      { date: "2024-12-31", value: 10.64, label: "Q4FY24" },
+      { date: "2025-03-31", value: 6.86, label: "Q1FY25" }
+    ]
+  },
+
+  // ---------------- US MACRO ----------------
+  us_cpi_yoy: {
+    name: "US CPI Inflation (YoY)", category: "us_macro", unit: "%",
+    source: "US BLS / FRED (CPIAUCSL)", freq: "Monthly", fred_id: "CPIAUCSL", fred_transform: "yoy_pct",
+    note: "May 2026 jump driven by an energy-price shock tied to the US–Iran conflict (now de-escalating).",
+    history: [
+      { date: "2026-04-01", value: 3.8 },
+      { date: "2026-05-01", value: 4.2 }
+    ]
+  },
+  us_core_cpi_yoy: {
+    name: "US Core CPI Inflation (YoY)", category: "us_macro", unit: "%",
+    source: "US BLS / FRED (CPILFESL)", freq: "Monthly", fred_id: "CPILFESL", fred_transform: "yoy_pct",
+    note: "",
+    history: [
+      { date: "2026-03-01", value: 2.6 },
+      { date: "2026-04-01", value: 2.8 },
+      { date: "2026-05-01", value: 2.9 }
+    ]
+  },
+  us_fed_funds: {
+    name: "Fed Funds Rate (Target Midpoint)", category: "us_macro", unit: "%",
+    source: "Federal Reserve / FRED (FEDFUNDS)", freq: "As changed", fred_id: "FEDFUNDS", fred_transform: "level",
+    note: "Target range held at 3.50–3.75% through the March and June 2026 FOMC meetings.",
+    history: [ { date: "2026-03-18", value: 3.625, label: "range 3.50–3.75%" } ]
+  },
+  us_unemployment: {
+    name: "Unemployment Rate", category: "us_macro", unit: "%",
+    source: "US BLS / FRED (UNRATE)", freq: "Monthly", fred_id: "UNRATE", fred_transform: "level",
+    note: "FOMC's own 2026 year-end projection is 4.4%.",
+    history: [ { date: "2026-03-01", value: 4.30 } ]
+  },
+  us_gdp_growth: {
+    name: "Real GDP Growth (Fed SEP Projection)", category: "us_macro", unit: "%",
+    source: "Federal Reserve Summary of Economic Projections", freq: "Quarterly SEP", fred_id: "A191RL1Q225SBEA", fred_transform: "level",
+    note: "This is the FOMC's own forecast, not a realized print — swap in actual BEA GDP growth as releases land.",
+    history: [ { date: "2026-03-18", value: 2.4, label: "2026 FOMC median projection", forecast: true } ]
+  },
+  us_10y_treasury: {
+    name: "US 10-Year Treasury Yield", category: "us_macro", unit: "%",
+    source: "FRED (DGS10) — fetch live or enter manually", freq: "Daily", fred_id: "DGS10", fred_transform: "level",
+    note: "Useful as the BD GSEC 10Y spread comparator. No seed value — add your FRED key or enter manually.",
+    history: []
+  },
+
+  // ---------------- COMMODITIES ----------------
+  brent_crude: {
+    name: "Brent Crude Oil", category: "commodities", unit: "USD/bbl",
+    source: "ICE / Trading Economics", freq: "Daily", eia_id: "RBRTE",
+    note: "Sharp June 2026 decline as the US–Iran interim peace deal reopened Strait of Hormuz shipping.",
+    history: [ { date: "2026-06-19", value: 79.95 } ]
+  },
+  wti_crude: {
+    name: "WTI Crude Oil", category: "commodities", unit: "USD/bbl",
+    source: "NYMEX / Trading Economics", freq: "Daily", eia_id: "RWTC",
+    note: "",
+    history: [ { date: "2026-06-19", value: 77.00 } ]
+  }
+};
+
+// ---------------- GSEC YIELD CURVE SNAPSHOTS ----------------
+// Tenor order matters for the curve chart.
+const GSEC_TENORS = ["91D", "182D", "364D", "2Y", "5Y", "10Y", "15Y", "20Y"];
+
+const SEED_GSEC_SNAPSHOTS = [
+  {
+    date: "2025-06-15", label: "Jun 2025 (cycle peak)", approx: true,
+    yields: { "91D": null, "182D": null, "364D": null, "2Y": 12.25, "5Y": 12.36, "10Y": null, "15Y": 12.44, "20Y": 12.28 }
+  },
+  {
+    date: "2025-09-24", label: "Sep 2025",
+    yields: { "91D": 9.50, "182D": 9.71, "364D": 9.60, "2Y": null, "5Y": 10.00, "10Y": null, "15Y": 9.66, "20Y": 9.63 }
+  },
+  {
+    date: "2026-04-15", label: "Apr 2026 (latest)",
+    yields: { "91D": 10.02, "182D": 10.11, "364D": 10.33, "2Y": 10.45, "5Y": 10.63, "10Y": 10.88, "15Y": 10.95, "20Y": 11.00 }
+  }
+];
+
+const CATEGORY_META = {
+  bd_macro:    { label: "BD Macro",        accent: "var(--accent)" },
+  bd_banking:  { label: "BD Banking",      accent: "var(--danger)" },
+  us_macro:    { label: "US Macro",        accent: "var(--us-accent)" },
+  commodities: { label: "Commodities",     accent: "var(--accent-2)" }
+};
+
+const OVERVIEW_PICKS = [
+  "bd_cpi_yoy", "bd_repo_rate", "bd_forex_reserves", "bd_fx_rate",
+  "bd_npl_ratio", "us_fed_funds", "us_cpi_yoy", "brent_crude"
+];
+
+if (typeof module !== "undefined") {
+  module.exports = { SEED_INDICATORS, SEED_GSEC_SNAPSHOTS, GSEC_TENORS, CATEGORY_META, OVERVIEW_PICKS };
+}
+// ============================================================
+// APP STATE
+// ============================================================
+let STATE = null;
+const STORAGE_KEY = "macro_dashboard_state_v1";
+const CHART_REGISTRY = {}; // canvasId -> Chart instance, so we can destroy before re-render
+
+function defaultState() {
+  // deep clone seeds so we never mutate the original SEED_ constants
+  return {
+    indicators: JSON.parse(JSON.stringify(SEED_INDICATORS)),
+    gsecSnapshots: JSON.parse(JSON.stringify(SEED_GSEC_SNAPSHOTS)),
+    settings: { fredKey: "", eiaKey: "" },
+    lastSync: {}
+  };
+}
+
+async function loadState() {
+  try {
+    const res = await window.storage.get(STORAGE_KEY, false);
+    if (res && res.value) {
+      const parsed = JSON.parse(res.value);
+      // Backfill any indicator keys that exist in seed but not in saved state
+      // (so future dashboard updates / new indicators still show up).
+      const base = defaultState();
+      parsed.indicators = Object.assign({}, base.indicators, parsed.indicators || {});
+      parsed.gsecSnapshots = parsed.gsecSnapshots && parsed.gsecSnapshots.length ? parsed.gsecSnapshots : base.gsecSnapshots;
+      parsed.settings = Object.assign({ fredKey: "", eiaKey: "" }, parsed.settings || {});
+      parsed.lastSync = parsed.lastSync || {};
+      STATE = parsed;
+      return;
+    }
+  } catch (e) {
+    console.warn("No saved state yet, using seed data.", e);
+  }
+  STATE = defaultState();
+}
+
+async function saveState() {
+  try {
+    await window.storage.set(STORAGE_KEY, JSON.stringify(STATE), false);
+  } catch (e) {
+    console.error("Save failed", e);
+    flashStatus("Couldn't save — your edits may not persist this session.", true);
+  }
+}
+
+// ============================================================
+// UTILITIES
+// ============================================================
+function sortedHistory(history) {
+  return (history || []).slice().sort((a, b) => new Date(a.date) - new Date(b.date));
+}
+
+function latestPoint(history) {
+  const h = sortedHistory(history);
+  return h.length ? h[h.length - 1] : null;
+}
+
+function previousPoint(history) {
+  const h = sortedHistory(history);
+  return h.length > 1 ? h[h.length - 2] : null;
+}
+
+function formatNum(value, unit) {
+  if (value === null || value === undefined || isNaN(value)) return "—";
+  let decimals = 2;
+  if (unit === "BDT bn" || unit === "USD mn") decimals = value >= 1000 ? 0 : 2;
+  const formatted = Number(value).toLocaleString(undefined, { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+  return formatted;
+}
+
+function unitSuffix(unit) {
+  if (unit === "%") return "%";
+  if (unit === "USD bn") return " bn";
+  if (unit === "USD mn") return " mn";
+  if (unit === "BDT bn") return " bn";
+  if (unit === "USD/bbl") return "/bbl";
+  return unit ? " " + unit : "";
+}
+
+function unitPrefix(unit) {
+  if (unit === "USD bn" || unit === "USD mn" || unit === "USD/bbl") return "$";
+  if (unit === "BDT bn" || unit === "BDT") return "৳";
+  return "";
+}
+
+function formatDateShort(dateStr, freq) {
+  const d = new Date(dateStr + "T00:00:00");
+  if (isNaN(d)) return dateStr;
+  if (freq === "Annual (FY)" || freq === "Annual") return d.getFullYear();
+  if (freq === "Daily" || freq === "Weekly/Monthly") return d.toLocaleDateString(undefined, { day: "2-digit", month: "short", year: "2-digit" });
+  return d.toLocaleDateString(undefined, { month: "short", year: "2-digit" });
+}
+
+function deltaInfo(history) {
+  const last = latestPoint(history);
+  const prev = previousPoint(history);
+  if (!last || !prev) return null;
+  const diff = last.value - prev.value;
+  return { diff, dir: diff > 0 ? "up" : diff < 0 ? "down" : "flat" };
+}
+
+function flashStatus(msg, isError) {
+  const el = document.getElementById("statusToast");
+  if (!el) return;
+  el.textContent = msg;
+  el.className = "toast show" + (isError ? " toast-error" : "");
+  clearTimeout(el._t);
+  el._t = setTimeout(() => { el.className = "toast"; }, 3600);
+}
+
+function destroyChart(canvasId) {
+  if (CHART_REGISTRY[canvasId]) {
+    CHART_REGISTRY[canvasId].destroy();
+    delete CHART_REGISTRY[canvasId];
+  }
+}
+
+// Reads CSS custom properties so charts match the design tokens exactly.
+function cssVar(name) {
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+}
+// ============================================================
+// CHART HELPERS
+// ============================================================
+
+function makeSparkline(canvas, history, color) {
+  if (!canvas) return;
+  destroyChart(canvas.id);
+  const h = sortedHistory(history);
+  if (h.length === 0) return;
+  const ctx = canvas.getContext("2d");
+  CHART_REGISTRY[canvas.id] = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels: h.map(p => p.date),
+      datasets: [{
+        data: h.map(p => p.value),
+        borderColor: color,
+        borderWidth: 2,
+        pointRadius: 0,
+        pointHoverRadius: 0,
+        tension: 0.25,
+        fill: true,
+        backgroundColor: color + "22"
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: false,
+      plugins: { legend: { display: false }, tooltip: { enabled: false } },
+      scales: {
+        x: { display: false },
+        y: { display: false }
+      },
+      elements: { line: { capBezierPoints: true } }
+    }
+  });
+}
+
+function makeDetailChart(canvas, indicator) {
+  if (!canvas) return;
+  destroyChart(canvas.id);
+  const h = sortedHistory(indicator.history);
+  const ctx = canvas.getContext("2d");
+  const accent = cssVar("--accent") || "#D4A24E";
+  CHART_REGISTRY[canvas.id] = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels: h.map(p => formatDateShort(p.date, indicator.freq)),
+      datasets: [{
+        label: indicator.name,
+        data: h.map(p => p.value),
+        borderColor: accent,
+        backgroundColor: accent + "22",
+        borderWidth: 2.5,
+        pointRadius: h.length < 20 ? 3 : 0,
+        pointBackgroundColor: accent,
+        tension: 0.2,
+        fill: true
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => unitPrefix(indicator.unit) + formatNum(ctx.parsed.y, indicator.unit) + unitSuffix(indicator.unit)
+          }
+        }
+      },
+      scales: {
+        x: { ticks: { color: cssVar("--text-dim"), font: { family: "'IBM Plex Mono', monospace", size: 11 } }, grid: { color: cssVar("--border") } },
+        y: { ticks: { color: cssVar("--text-dim"), font: { family: "'IBM Plex Mono', monospace", size: 11 } }, grid: { color: cssVar("--border") } }
+      }
+    }
+  });
+}
+
+function makeGsecCurveChart(canvas, snapshots, selectedDates) {
+  if (!canvas) return;
+  destroyChart(canvas.id);
+  const ctx = canvas.getContext("2d");
+  const palette = [cssVar("--accent") || "#D4A24E", cssVar("--text-dim") || "#8B96A5", cssVar("--us-accent") || "#5B8DEF", cssVar("--danger") || "#C45B4F"];
+  const shown = snapshots.filter(s => selectedDates.includes(s.date)).sort((a, b) => new Date(a.date) - new Date(b.date));
+  const datasets = shown.map((snap, i) => ({
+    label: snap.label || snap.date,
+    data: GSEC_TENORS.map(t => snap.yields[t]),
+    borderColor: palette[i % palette.length],
+    backgroundColor: palette[i % palette.length] + "18",
+    borderWidth: i === shown.length - 1 ? 3 : 2,
+    borderDash: i === shown.length - 1 ? [] : [6, 4],
+    pointRadius: 4,
+    pointBackgroundColor: palette[i % palette.length],
+    spanGaps: true,
+    tension: 0.15,
+    fill: i === shown.length - 1
+  }));
+  CHART_REGISTRY[canvas.id] = new Chart(ctx, {
+    type: "line",
+    data: { labels: GSEC_TENORS, datasets },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: false,
+      interaction: { mode: "index", intersect: false },
+      plugins: {
+        legend: { labels: { color: cssVar("--text"), font: { family: "'Inter', sans-serif", size: 12 } } },
+        tooltip: {
+          callbacks: { label: (ctx) => `${ctx.dataset.label}: ${ctx.parsed.y === null ? "—" : ctx.parsed.y.toFixed(2) + "%"}` }
+        }
+      },
+      scales: {
+        x: { ticks: { color: cssVar("--text-dim"), font: { family: "'IBM Plex Mono', monospace", size: 12, weight: "600" } }, grid: { color: cssVar("--border") } },
+        y: { ticks: { color: cssVar("--text-dim"), callback: (v) => v + "%", font: { family: "'IBM Plex Mono', monospace", size: 11 } }, grid: { color: cssVar("--border") } }
+      }
+    }
+  });
+}
+
+function makeCompareChart(canvas, series, normalized) {
+  if (!canvas) return;
+  destroyChart(canvas.id);
+  const ctx = canvas.getContext("2d");
+  const palette = ["#D4A24E", "#5B8DEF", "#4FA88A", "#C45B4F", "#B084CC", "#E8EAED"];
+
+  // Build a unified, sorted list of all dates across selected series.
+  const allDates = new Set();
+  series.forEach(s => sortedHistory(s.history).forEach(p => allDates.add(p.date)));
+  const dates = Array.from(allDates).sort((a, b) => new Date(a) - new Date(b));
+
+  const datasets = series.map((s, i) => {
+    const h = sortedHistory(s.history);
+    const map = {};
+    h.forEach(p => map[p.date] = p.value);
+    const base = h.length ? h[0].value : null;
+    const data = dates.map(d => {
+      if (!(d in map)) return null;
+      if (!normalized) return map[d];
+      return base ? ((map[d] / base) * 100) : null;
+    });
+    return {
+      label: s.name,
+      data,
+      borderColor: palette[i % palette.length],
+      backgroundColor: "transparent",
+      borderWidth: 2.5,
+      pointRadius: 3,
+      pointBackgroundColor: palette[i % palette.length],
+      spanGaps: true,
+      tension: 0.2
+    };
+  });
+
+  CHART_REGISTRY[canvas.id] = new Chart(ctx, {
+    type: "line",
+    data: { labels: dates.map(d => formatDateShort(d, "Monthly")), datasets },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: false,
+      interaction: { mode: "nearest", intersect: false },
+      plugins: {
+        legend: { labels: { color: cssVar("--text"), font: { family: "'Inter', sans-serif", size: 12 } } },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => `${ctx.dataset.label}: ${ctx.parsed.y === null ? "—" : ctx.parsed.y.toFixed(2)}${normalized ? " (idx)" : ""}`
+          }
+        }
+      },
+      scales: {
+        x: { ticks: { color: cssVar("--text-dim"), font: { family: "'IBM Plex Mono', monospace", size: 11 } }, grid: { color: cssVar("--border") } },
+        y: {
+          ticks: { color: cssVar("--text-dim"), font: { family: "'IBM Plex Mono', monospace", size: 11 } },
+          grid: { color: cssVar("--border") },
+          title: normalized ? { display: true, text: "Index (first point = 100)", color: cssVar("--text-dim") } : undefined
+        }
+      }
+    }
+  });
+}
+// ============================================================
+// RENDERING — Overview & Category Grids
+// ============================================================
+
+function indicatorAccent(category) {
+  return (CATEGORY_META[category] && CATEGORY_META[category].accent) ? cssVarFromToken(CATEGORY_META[category].accent) : cssVar("--accent");
+}
+function cssVarFromToken(token) {
+  // token looks like "var(--accent)" — pull the real value
+  const m = /var\((--[a-z0-9-]+)\)/.exec(token);
+  return m ? cssVar(m[1]) : token;
+}
+
+function statCardHTML(key) {
+  const ind = STATE.indicators[key];
+  if (!ind) return "";
+  const last = latestPoint(ind.history);
+  const delta = deltaInfo(ind.history);
+  const accent = indicatorAccent(ind.category);
+  const arrow = !delta ? "" : delta.dir === "up" ? "▲" : delta.dir === "down" ? "▼" : "■";
+  const deltaClass = !delta ? "" : delta.dir === "up" ? "delta-up" : delta.dir === "down" ? "delta-down" : "delta-flat";
+  return `
+    <div class="stat-card" data-key="${key}" tabindex="0" role="button" aria-label="View ${ind.name} details">
+      <div class="stat-card-top">
+        <span class="stat-label">${ind.name}</span>
+        <span class="cat-dot" style="background:${accent}"></span>
+      </div>
+      <div class="stat-value">${last ? unitPrefix(ind.unit) + formatNum(last.value, ind.unit) + unitSuffix(ind.unit) : "—"}</div>
+      <div class="stat-meta">
+        <span class="stat-date">${last ? formatDateShort(last.date, ind.freq) : "no data"}</span>
+        ${delta ? `<span class="stat-delta ${deltaClass}">${arrow} ${Math.abs(delta.diff).toFixed(2)}</span>` : ""}
+      </div>
+      <canvas class="sparkline" id="spark-${key}" height="36"></canvas>
+    </div>`;
+}
+
+function renderOverview() {
+  const grid = document.getElementById("overviewGrid");
+  grid.innerHTML = OVERVIEW_PICKS.map(statCardHTML).join("");
+  OVERVIEW_PICKS.forEach(key => {
+    const ind = STATE.indicators[key];
+    const canvas = document.getElementById(`spark-${key}`);
+    makeSparkline(canvas, ind.history, indicatorAccent(ind.category));
+  });
+  attachCardHandlers(grid);
+
+  // Hero yield curve — latest snapshot only, on Overview
+  const latestSnap = STATE.gsecSnapshots.slice().sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+  document.getElementById("heroCurveLabel").textContent = latestSnap ? `as of ${latestSnap.label || latestSnap.date}` : "no data yet";
+  makeGsecCurveChart(document.getElementById("heroCurveChart"), STATE.gsecSnapshots, latestSnap ? [latestSnap.date] : []);
+
+  renderHighlights();
+}
+
+function renderHighlights() {
+  const bdEl = document.getElementById("bdHighlights");
+  const usEl = document.getElementById("usHighlights");
+  const npl = STATE.indicators.bd_npl_ratio, npl_last = latestPoint(npl.history);
+  const cpi = STATE.indicators.bd_cpi_yoy, cpi_last = latestPoint(cpi.history);
+  const fx = STATE.indicators.bd_forex_reserves, fx_last = latestPoint(fx.history);
+  bdEl.innerHTML = `
+    <li><strong>NPL ratio</strong> sits at ${npl_last ? npl_last.value + "%" : "—"} as of ${npl_last ? formatDateShort(npl_last.date) : "—"} — down from a post-AQR peak of 35.7% in Sep-2025, but still the highest of any banking system tracked globally.</li>
+    <li><strong>Inflation</strong> is running at ${cpi_last ? cpi_last.value + "%" : "—"} YoY, above the repo rate's real-rate comfort zone — keep an eye on whether BB holds at 10.00%.</li>
+    <li><strong>Reserves</strong> reached a 43-month high of ${fx_last ? "$" + fx_last.value + "bn" : "—"} gross, helped by BB's FX purchases from commercial banks.</li>`;
+  const fed = STATE.indicators.us_fed_funds, fed_last = latestPoint(fed.history);
+  const uscpi = STATE.indicators.us_cpi_yoy, uscpi_last = latestPoint(uscpi.history);
+  const brent = STATE.indicators.brent_crude, brent_last = latestPoint(brent.history);
+  usEl.innerHTML = `
+    <li><strong>Fed funds</strong> held at ${fed_last ? fed_last.label || fed_last.value + "%" : "—"} — markets are pricing the next move as a possible hike, not a cut.</li>
+    <li><strong>US CPI</strong> jumped to ${uscpi_last ? uscpi_last.value + "%" : "—"} YoY on an energy-price shock from the Iran conflict — watch for pass-through as the Strait of Hormuz reopens.</li>
+    <li><strong>Brent crude</strong> has fallen back to ${brent_last ? "$" + brent_last.value : "—"}/bbl as shipping risk eases — relevant for BD's import bill and inflation outlook.</li>`;
+}
+
+function renderCategoryGrid(category, gridId) {
+  const grid = document.getElementById(gridId);
+  const keys = Object.keys(STATE.indicators).filter(k => STATE.indicators[k].category === category);
+  grid.innerHTML = keys.map(statCardHTML).join("");
+  keys.forEach(key => {
+    const ind = STATE.indicators[key];
+    const canvas = document.getElementById(`spark-${key}`);
+    makeSparkline(canvas, ind.history, indicatorAccent(ind.category));
+  });
+  attachCardHandlers(grid);
+}
+
+function attachCardHandlers(container) {
+  container.querySelectorAll(".stat-card").forEach(card => {
+    card.addEventListener("click", () => openIndicatorModal(card.dataset.key));
+    card.addEventListener("keypress", (e) => { if (e.key === "Enter") openIndicatorModal(card.dataset.key); });
+  });
+}
+
+// ============================================================
+// INDICATOR DETAIL MODAL
+// ============================================================
+let MODAL_KEY = null;
+
+function openIndicatorModal(key) {
+  MODAL_KEY = key;
+  const ind = STATE.indicators[key];
+  const modal = document.getElementById("modalOverlay");
+  document.getElementById("modalTitle").textContent = ind.name;
+  document.getElementById("modalMeta").textContent = `${ind.source} · ${ind.freq}`;
+  document.getElementById("modalNote").textContent = ind.note || "";
+  document.getElementById("modalNote").style.display = ind.note ? "block" : "none";
+  renderModalTable();
+  modal.classList.add("open");
+  setTimeout(() => makeDetailChart(document.getElementById("modalChart"), ind), 10);
+}
+
+function closeModal() {
+  document.getElementById("modalOverlay").classList.remove("open");
+  MODAL_KEY = null;
+}
+
+function renderModalTable() {
+  const ind = STATE.indicators[MODAL_KEY];
+  const tbody = document.getElementById("modalTableBody");
+  const rows = sortedHistory(ind.history).slice().reverse();
+  tbody.innerHTML = rows.map((p, idx) => {
+    const realIdx = ind.history.indexOf(p);
+    return `<tr>
+      <td>${p.date}</td>
+      <td>${unitPrefix(ind.unit)}${formatNum(p.value, ind.unit)}${unitSuffix(ind.unit)}</td>
+      <td class="dim">${p.label || ""}${p.live ? " · live" : ""}</td>
+      <td><button class="icon-btn-sm" data-del="${realIdx}" aria-label="Delete row">✕</button></td>
+    </tr>`;
+  }).join("") || `<tr><td colspan="4" class="dim">No data points yet — add the first one below.</td></tr>`;
+
+  tbody.querySelectorAll("[data-del]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const i = parseInt(btn.dataset.del, 10);
+      ind.history.splice(i, 1);
+      saveState();
+      renderModalTable();
+      makeDetailChart(document.getElementById("modalChart"), ind);
+      refreshAllVisibleGrids();
+    });
+  });
+}
+
+function wireModalForm() {
+  document.getElementById("modalAddForm").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const date = document.getElementById("modalDateInput").value;
+    const value = parseFloat(document.getElementById("modalValueInput").value);
+    const label = document.getElementById("modalLabelInput").value.trim();
+    if (!date || isNaN(value)) { flashStatus("Enter both a date and a value.", true); return; }
+    const ind = STATE.indicators[MODAL_KEY];
+    // replace existing point on same date, else push
+    const existingIdx = ind.history.findIndex(p => p.date === date);
+    const point = { date, value };
+    if (label) point.label = label;
+    if (existingIdx >= 0) ind.history[existingIdx] = point; else ind.history.push(point);
+    saveState();
+    document.getElementById("modalAddForm").reset();
+    renderModalTable();
+    makeDetailChart(document.getElementById("modalChart"), ind);
+    refreshAllVisibleGrids();
+    flashStatus("Saved.");
+  });
+}
+
+function refreshAllVisibleGrids() {
+  renderOverview();
+  renderCategoryGrid("bd_macro", "bdMacroGrid");
+  renderCategoryGrid("bd_banking", "bdBankingGrid");
+  renderCategoryGrid("us_macro", "usMacroGrid");
+  renderCategoryGrid("commodities", "commoditiesGrid");
+  if (document.getElementById("gsecTab").classList.contains("active")) renderGsecTab();
+}
+// ============================================================
+// GSEC YIELD CURVE TAB
+// ============================================================
+let GSEC_SELECTED = [];
+
+function renderGsecTab() {
+  const snaps = STATE.gsecSnapshots.slice().sort((a, b) => new Date(b.date) - new Date(a.date));
+  if (GSEC_SELECTED.length === 0 && snaps.length) GSEC_SELECTED = [snaps[0].date];
+
+  const checklist = document.getElementById("gsecSnapList");
+  checklist.innerHTML = snaps.map(s => `
+    <label class="chip-check">
+      <input type="checkbox" value="${s.date}" ${GSEC_SELECTED.includes(s.date) ? "checked" : ""}>
+      <span>${s.label || s.date}</span>
+    </label>`).join("");
+  checklist.querySelectorAll("input").forEach(cb => {
+    cb.addEventListener("change", () => {
+      GSEC_SELECTED = Array.from(checklist.querySelectorAll("input:checked")).map(i => i.value);
+      makeGsecCurveChart(document.getElementById("gsecChart"), STATE.gsecSnapshots, GSEC_SELECTED);
+    });
+  });
+
+  makeGsecCurveChart(document.getElementById("gsecChart"), STATE.gsecSnapshots, GSEC_SELECTED);
+  renderGsecTable();
+  renderGsecSnapList();
+}
+
+function renderGsecTable() {
+  const latest = STATE.gsecSnapshots.slice().sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+  const tbody = document.getElementById("gsecEditTableBody");
+  tbody.innerHTML = GSEC_TENORS.map(t => `
+    <tr>
+      <td>${t}</td>
+      <td><input type="number" step="0.01" class="gsec-input" data-tenor="${t}" value="${latest && latest.yields[t] !== null && latest.yields[t] !== undefined ? latest.yields[t] : ""}" placeholder="—"></td>
+    </tr>`).join("");
+}
+
+function renderGsecSnapList() {
+  const snaps = STATE.gsecSnapshots.slice().sort((a, b) => new Date(b.date) - new Date(a.date));
+  const el = document.getElementById("gsecSnapTable");
+  el.innerHTML = snaps.map((s, i) => {
+    const realIdx = STATE.gsecSnapshots.indexOf(s);
+    return `<tr>
+      <td>${s.date}</td>
+      <td>${s.label || ""}</td>
+      <td>${GSEC_TENORS.filter(t => s.yields[t] !== null && s.yields[t] !== undefined).length}/${GSEC_TENORS.length} tenors</td>
+      <td><button class="icon-btn-sm" data-delsnap="${realIdx}" aria-label="Delete snapshot">✕</button></td>
+    </tr>`;
+  }).join("");
+  el.querySelectorAll("[data-delsnap]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const i = parseInt(btn.dataset.delsnap, 10);
+      const removedDate = STATE.gsecSnapshots[i].date;
+      STATE.gsecSnapshots.splice(i, 1);
+      GSEC_SELECTED = GSEC_SELECTED.filter(d => d !== removedDate);
+      saveState();
+      renderGsecTab();
+      flashStatus("Snapshot removed.");
+    });
+  });
+}
+
+function wireGsecForm() {
+  document.getElementById("gsecSaveBtn").addEventListener("click", () => {
+    const date = document.getElementById("gsecNewDate").value;
+    const label = document.getElementById("gsecNewLabel").value.trim();
+    if (!date) { flashStatus("Pick a date for this snapshot.", true); return; }
+    const yields = {};
+    document.querySelectorAll(".gsec-input").forEach(input => {
+      const v = input.value.trim();
+      yields[input.dataset.tenor] = v === "" ? null : parseFloat(v);
+    });
+    const hasAny = Object.values(yields).some(v => v !== null);
+    if (!hasAny) { flashStatus("Enter at least one tenor's yield.", true); return; }
+    const existingIdx = STATE.gsecSnapshots.findIndex(s => s.date === date);
+    const snap = { date, label, yields };
+    if (existingIdx >= 0) STATE.gsecSnapshots[existingIdx] = snap; else STATE.gsecSnapshots.push(snap);
+    GSEC_SELECTED = [date];
+    saveState();
+    document.getElementById("gsecNewDate").value = "";
+    document.getElementById("gsecNewLabel").value = "";
+    renderGsecTab();
+    flashStatus("Yield curve snapshot saved.");
+  });
+}
+// ============================================================
+// COMPARE TAB
+// ============================================================
+let COMPARE_SELECTED = [];
+let COMPARE_NORMALIZED = true;
+
+function getGsecTenorSeries(tenor) {
+  const history = STATE.gsecSnapshots
+    .filter(s => s.yields[tenor] !== null && s.yields[tenor] !== undefined)
+    .map(s => ({ date: s.date, value: s.yields[tenor] }));
+  return { name: `GSEC ${tenor} Yield`, unit: "%", category: "gsec", history };
+}
+
+function allComparableSeries() {
+  const list = Object.keys(STATE.indicators).map(key => Object.assign({ key }, STATE.indicators[key]));
+  GSEC_TENORS.forEach(t => {
+    const s = getGsecTenorSeries(t);
+    if (s.history.length) list.push(Object.assign({ key: "gsec_" + t }, s));
+  });
+  return list;
+}
+
+function renderCompareTab() {
+  const all = allComparableSeries();
+  if (COMPARE_SELECTED.length === 0) {
+    COMPARE_SELECTED = ["bd_cpi_yoy", "brent_crude"].filter(k => all.find(s => s.key === k));
+  }
+  const groups = {};
+  all.forEach(s => {
+    const catLabel = s.category === "gsec" ? "GSEC Yield Curve" : (CATEGORY_META[s.category] ? CATEGORY_META[s.category].label : s.category);
+    groups[catLabel] = groups[catLabel] || [];
+    groups[catLabel].push(s);
+  });
+
+  const container = document.getElementById("compareChecklist");
+  container.innerHTML = Object.keys(groups).map(label => `
+    <div class="compare-group">
+      <div class="compare-group-label">${label}</div>
+      ${groups[label].map(s => `
+        <label class="chip-check">
+          <input type="checkbox" value="${s.key}" ${COMPARE_SELECTED.includes(s.key) ? "checked" : ""} ${COMPARE_SELECTED.length >= 5 && !COMPARE_SELECTED.includes(s.key) ? "disabled" : ""}>
+          <span>${s.name}</span>
+        </label>`).join("")}
+    </div>`).join("");
+
+  container.querySelectorAll("input").forEach(cb => {
+    cb.addEventListener("change", () => {
+      COMPARE_SELECTED = Array.from(container.querySelectorAll("input:checked")).map(i => i.value);
+      renderCompareTab();
+    });
+  });
+
+  document.getElementById("compareCount").textContent = `${COMPARE_SELECTED.length}/5 selected`;
+  const selectedSeries = COMPARE_SELECTED.map(k => all.find(s => s.key === k)).filter(Boolean);
+  makeCompareChart(document.getElementById("compareChart"), selectedSeries, COMPARE_NORMALIZED);
+}
+
+function wireCompareControls() {
+  document.getElementById("compareModeToggle").addEventListener("change", (e) => {
+    COMPARE_NORMALIZED = e.target.value === "normalized";
+    renderCompareTab();
+  });
+}
+// ============================================================
+// SETTINGS TAB — API keys, live refresh, backup
+// ============================================================
+
+function renderSettingsTab() {
+  document.getElementById("fredKeyInput").value = STATE.settings.fredKey || "";
+  document.getElementById("eiaKeyInput").value = STATE.settings.eiaKey || "";
+  renderSyncStatus();
+}
+
+function renderSyncStatus() {
+  const el = document.getElementById("syncStatusList");
+  const entries = Object.entries(STATE.lastSync);
+  if (!entries.length) { el.innerHTML = `<li class="dim">No live refresh run yet this session.</li>`; return; }
+  el.innerHTML = entries.map(([k, v]) => `<li><strong>${k}</strong> — ${v}</li>`).join("");
+}
+
+function wireSettingsForm() {
+  document.getElementById("saveKeysBtn").addEventListener("click", async () => {
+    STATE.settings.fredKey = document.getElementById("fredKeyInput").value.trim();
+    STATE.settings.eiaKey = document.getElementById("eiaKeyInput").value.trim();
+    await saveState();
+    flashStatus("API keys saved to this browser.");
+  });
+
+  document.getElementById("refreshFredBtn").addEventListener("click", refreshFredData);
+  document.getElementById("refreshEiaBtn").addEventListener("click", refreshEiaData);
+
+  document.getElementById("exportBtn").addEventListener("click", () => {
+    const blob = new Blob([JSON.stringify(STATE, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `macro-dashboard-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  document.getElementById("importInput").addEventListener("change", async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    try {
+      const text = await file.text();
+      const parsed = JSON.parse(text);
+      if (!parsed.indicators) throw new Error("File doesn't look like a dashboard backup.");
+      STATE = parsed;
+      await saveState();
+      refreshAllVisibleGrids();
+      renderSettingsTab();
+      flashStatus("Backup imported.");
+    } catch (err) {
+      flashStatus("Import failed: " + err.message, true);
+    }
+    e.target.value = "";
+  });
+
+  document.getElementById("resetBtn").addEventListener("click", async () => {
+    if (!confirm("Reset all data to the original seed dataset? Your manual edits and saved snapshots will be lost.")) return;
+    STATE = defaultState();
+    await saveState();
+    refreshAllVisibleGrids();
+    renderSettingsTab();
+    flashStatus("Reset to seed data.");
+  });
+}
+
+// ---------------- FRED (US macro) ----------------
+async function fetchFredSeries(seriesId, apiKey) {
+  const url = `https://api.stlouisfed.org/fred/series/observations?series_id=${seriesId}&api_key=${apiKey}&file_type=json&sort_order=asc&observation_start=2023-01-01`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`FRED HTTP ${res.status}`);
+  const json = await res.json();
+  if (!json.observations) throw new Error("Unexpected FRED response shape");
+  return json.observations
+    .filter(o => o.value !== ".")
+    .map(o => ({ date: o.date, value: parseFloat(o.value) }));
+}
+
+function computeYoyPct(levelSeries) {
+  // levelSeries: ascending [{date, value}] of a monthly index. Returns YoY % change series.
+  const out = [];
+  for (let i = 12; i < levelSeries.length; i++) {
+    const cur = levelSeries[i], prior = levelSeries[i - 12];
+    if (prior && prior.value) {
+      out.push({ date: cur.date, value: Math.round(((cur.value / prior.value - 1) * 100) * 100) / 100 });
+    }
+  }
+  return out;
+}
+
+async function refreshFredData() {
+  const key = STATE.settings.fredKey;
+  if (!key) { flashStatus("Add a FRED API key first (see link below).", true); return; }
+  const btn = document.getElementById("refreshFredBtn");
+  btn.disabled = true; btn.textContent = "Refreshing…";
+  const targets = Object.keys(STATE.indicators).filter(k => STATE.indicators[k].fred_id);
+  let okCount = 0, errMsgs = [];
+  for (const key2 of targets) {
+    const ind = STATE.indicators[key2];
+    try {
+      const raw = await fetchFredSeries(ind.fred_id, key);
+      const transformed = ind.fred_transform === "yoy_pct" ? computeYoyPct(raw) : raw;
+      const liveTail = transformed.slice(-24).map(p => Object.assign({ live: true }, p));
+      const manualPoints = ind.history.filter(p => !p.live);
+      const merged = {};
+      manualPoints.forEach(p => merged[p.date] = p);
+      liveTail.forEach(p => merged[p.date] = p);
+      ind.history = Object.values(merged);
+      okCount++;
+    } catch (e) {
+      errMsgs.push(`${ind.name}: ${e.message}`);
+    }
+  }
+  STATE.lastSync["FRED (US macro)"] = new Date().toLocaleString() + (errMsgs.length ? ` — ${okCount}/${targets.length} series OK` : " — all OK");
+  await saveState();
+  refreshAllVisibleGrids();
+  renderSettingsTab();
+  btn.disabled = false; btn.textContent = "Refresh US data from FRED";
+  if (errMsgs.length) {
+    flashStatus(`FRED refresh: ${okCount}/${targets.length} succeeded. Check key/CORS for the rest.`, errMsgs.length === targets.length);
+  } else {
+    flashStatus("US macro data refreshed from FRED.");
+  }
+}
+
+// ---------------- EIA (commodities) ----------------
+async function fetchEiaSeries(seriesId, apiKey) {
+  const url = `https://api.eia.gov/v2/petroleum/pri/spt/data/?api_key=${apiKey}&frequency=daily&data[0]=value&facets[series][]=${seriesId}&sort[0][column]=period&sort[0][direction]=desc&length=30`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`EIA HTTP ${res.status}`);
+  const json = await res.json();
+  const rows = json && json.response && json.response.data;
+  if (!rows) throw new Error("Unexpected EIA response shape");
+  return rows.map(r => ({ date: r.period, value: parseFloat(r.value) })).reverse();
+}
+
+async function refreshEiaData() {
+  const key = STATE.settings.eiaKey;
+  if (!key) { flashStatus("Add an EIA API key first (see link below).", true); return; }
+  const btn = document.getElementById("refreshEiaBtn");
+  btn.disabled = true; btn.textContent = "Refreshing…";
+  const targets = Object.keys(STATE.indicators).filter(k => STATE.indicators[k].eia_id);
+  let okCount = 0, errMsgs = [];
+  for (const key2 of targets) {
+    const ind = STATE.indicators[key2];
+    try {
+      const raw = await fetchEiaSeries(ind.eia_id, key);
+      const liveTail = raw.slice(-30).map(p => Object.assign({ live: true }, p));
+      const manualPoints = ind.history.filter(p => !p.live);
+      const merged = {};
+      manualPoints.forEach(p => merged[p.date] = p);
+      liveTail.forEach(p => merged[p.date] = p);
+      ind.history = Object.values(merged);
+      okCount++;
+    } catch (e) {
+      errMsgs.push(`${ind.name}: ${e.message}`);
+    }
+  }
+  STATE.lastSync["EIA (commodities)"] = new Date().toLocaleString() + (errMsgs.length ? ` — ${okCount}/${targets.length} series OK` : " — all OK");
+  await saveState();
+  refreshAllVisibleGrids();
+  renderSettingsTab();
+  btn.disabled = false; btn.textContent = "Refresh commodity prices from EIA";
+  if (errMsgs.length) {
+    flashStatus(`EIA refresh: ${okCount}/${targets.length} succeeded. Check key/CORS for the rest.`, errMsgs.length === targets.length);
+  } else {
+    flashStatus("Commodity prices refreshed from EIA.");
+  }
+}
+// ============================================================
+// TAB SWITCHING
+// ============================================================
+function switchTab(tabId) {
+  document.querySelectorAll(".tabpanel").forEach(p => p.classList.remove("active"));
+  document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+  document.getElementById(tabId).classList.add("active");
+  document.querySelector(`.tab-btn[data-tab="${tabId}"]`).classList.add("active");
+
+  if (tabId === "gsecTab") renderGsecTab();
+  if (tabId === "compareTab") renderCompareTab();
+  if (tabId === "settingsTab") renderSettingsTab();
+}
+
+function wireTabs() {
+  document.querySelectorAll(".tab-btn").forEach(btn => {
+    btn.addEventListener("click", () => switchTab(btn.dataset.tab));
+  });
+}
+
+// ============================================================
+// CLOCK
+// ============================================================
+function tickClock() {
+  const el = document.getElementById("dhakaClock");
+  if (!el) return;
+  const now = new Date();
+  const dhaka = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Asia/Dhaka", hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false
+  }).format(now);
+  const dateStr = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Asia/Dhaka", day: "2-digit", month: "short", year: "numeric"
+  }).format(now);
+  el.textContent = `Dhaka ${dateStr} · ${dhaka}`;
+}
+
+// ============================================================
+// INIT
+// ============================================================
+async function init() {
+  await loadState();
+  wireTabs();
+  wireModalForm();
+  wireGsecForm();
+  wireCompareControls();
+  wireSettingsForm();
+
+  document.getElementById("modalClose").addEventListener("click", closeModal);
+  document.getElementById("modalOverlay").addEventListener("click", (e) => {
+    if (e.target.id === "modalOverlay") closeModal();
+  });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeModal(); });
+
+  tickClock();
+  setInterval(tickClock, 1000);
+
+  renderOverview();
+  renderCategoryGrid("bd_macro", "bdMacroGrid");
+  renderCategoryGrid("bd_banking", "bdBankingGrid");
+  renderCategoryGrid("us_macro", "usMacroGrid");
+  renderCategoryGrid("commodities", "commoditiesGrid");
+
+  document.getElementById("appLoading").style.display = "none";
+  document.getElementById("appShell").style.display = "block";
+}
+
+init();
+</script></body></html>
