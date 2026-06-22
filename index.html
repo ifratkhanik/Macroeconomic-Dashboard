@@ -1,3 +1,8 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Bangladesh Macro Terminal</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -72,7 +77,7 @@
     position: sticky; top: 0; z-index: 100;
   }
   .topbar-inner {
-    max-width: 1440px; margin: 0 auto; width: 100%;
+    max-width: 1760px; margin: 0 auto; width: 100%;
     display: flex; align-items: center; justify-content: space-between;
     padding: 16px 24px;
   }
@@ -95,7 +100,7 @@
     background: #070A12; border-bottom: 1px solid var(--border); overflow: hidden;
   }
   .ticker-inner {
-    max-width: 1440px; margin: 0 auto; width: 100%;
+    max-width: 1760px; margin: 0 auto; width: 100%;
     display: flex; align-items: center; gap: 24px; padding: 8px 24px;
   }
   .ticker-label {
@@ -118,7 +123,7 @@
     background: #090D16; position: sticky; top: 62px; z-index: 99;
   }
   .tabs-inner {
-    max-width: 1440px; margin: 0 auto; width: 100%;
+    max-width: 1760px; margin: 0 auto; width: 100%;
     display: flex; gap: 4px; padding: 0 24px; overflow-x: auto;
     scrollbar-width: none;
   }
@@ -131,7 +136,7 @@
   .tab-btn:hover { color: var(--text); }
   .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
 
-  main { max-width: 1440px; margin: 0 auto; padding: 24px 24px 80px; }
+  main { max-width: 1760px; margin: 0 auto; padding: 24px 24px 80px; }
   .tabpanel { display: none; }
   .tabpanel.active { display: block; animation: fadein 0.25s cubic-bezier(0.16, 1, 0.3, 1); }
   @keyframes fadein { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
@@ -145,7 +150,7 @@
   }
   .section-desc { color: var(--text-dim); font-size: 13.5px; margin: 0 0 20px; max-width: 760px; line-height: 1.5; }
 
-  /* ============== DASHBOARD CARD GRIDS ============== */
+  /* ============== DASHBOARD CARD GRIDS (Expansive Widescreen) ============== */
   .overview-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 24px; align-items: start; }
   .card-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; align-items: start; }
   @media (max-width: 1100px) { .overview-grid { grid-template-columns: repeat(2, 1fr); } }
@@ -156,7 +161,7 @@
     background: var(--surface); border: 1px solid var(--border); border-radius: 6px;
     padding: 16px 16px 12px; cursor: pointer; transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     position: relative; overflow: hidden;
-    height: 152px; /* Force consistent height to resolve vertical stretching */
+    height: 152px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -184,7 +189,7 @@
     border: 1px solid var(--border); border-radius: 8px; padding: 24px; margin-bottom: 24px;
   }
   .hero-curve-head { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 14px; flex-wrap: wrap; gap: 8px; }
-  .hero-curve-chart-wrap { height: 260px; filter: drop-shadow(0 0 12px rgba(212, 175, 55, 0.05)); }
+  .hero-curve-chart-wrap { height: 380px; filter: drop-shadow(0 0 12px rgba(212, 175, 55, 0.05)); }
   #heroCurveLabel { font-family: var(--font-mono); font-size: 11px; color: var(--text-dim); }
 
   .highlights-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 8px; }
@@ -203,7 +208,7 @@
   .gsec-layout { display: grid; grid-template-columns: 1fr 280px; gap: 16px; }
   @media (max-width: 950px) { .gsec-layout { grid-template-columns: 1fr; } }
   .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 20px; }
-  .gsec-chart-wrap { height: 320px; filter: drop-shadow(0 0 10px rgba(212, 175, 55, 0.04)); margin-bottom: 6px; }
+  .gsec-chart-wrap { height: 380px; filter: drop-shadow(0 0 10px rgba(212, 175, 55, 0.04)); margin-bottom: 6px; }
   .chip-check {
     display: flex; align-items: center; gap: 8px; padding: 8px 4px; font-size: 12.5px; color: var(--text-dim);
     cursor: pointer; border-bottom: 1px solid var(--border); transition: color 0.15s;
@@ -247,7 +252,7 @@
   @media (max-width: 950px) { .compare-layout { grid-template-columns: 1fr; } }
   .compare-group { margin-bottom: 12px; }
   .compare-group-label { font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); margin: 10px 0 4px; font-weight: 600; }
-  .compare-chart-wrap { height: 380px; }
+  .compare-chart-wrap { height: 420px; }
   .compare-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px; }
   #compareCount { font-family: var(--font-mono); font-size: 11px; color: var(--text-dim); }
 
@@ -304,7 +309,7 @@
 <body>
 <div id="appLoading">
   <div class="loader-glyph"></div>
-  <div>CONNECTING TO TERMINAL DATABASE...</div>
+  <div>CONNECTING TO BANGLADESH MACRO TERMINAL...</div>
 </div>
 
 <div id="appShell" style="display:none;">
@@ -316,8 +321,8 @@
         <span class="brand-title">Bangladesh Macro Terminal</span>
         <span class="brand-sub">Institutional Workspace</span>
       </div>
-      <div class="topbar-right" style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px;">
-        <span class="user-signature" style="font-family: var(--font-mono); font-size: 11px; color: var(--accent); font-weight: 500; letter-spacing: 0.05em;">Md Ifrat Khan, CFA</span>
+      <div class="topbar-right" style="display: flex; flex-direction: column; align-items: flex-end; gap: 6px;">
+        <span class="user-signature" style="font-family: var(--font-mono); font-size: 10px; color: var(--accent); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; border: 1px solid rgba(212, 175, 55, 0.25); padding: 3px 8px; border-radius: 4px; background: rgba(212, 175, 55, 0.04); box-shadow: 0 0 10px rgba(212, 175, 55, 0.03);">Md Ifrat Khan, CFA</span>
         <span class="clock" id="dhakaClock">—</span>
       </div>
     </div>
@@ -554,15 +559,16 @@
 <div class="toast" id="statusToast"></div>
 <script>
 // ============================================================
-// DETERMINISTIC 60-MONTH DENSE INTERPOLATOR (June 2021 - June 2026)
+// DETERMINISTIC 60-MONTH DENSE INTERPOLATOR (June 2021 - May 2026)
+// strictly terminates at May 2026 as June CPI is not yet released.
 // ============================================================
 function generate60MonthSeries(anchors, startValue, endValue, defaultGrowth = 0.01) {
   const dates = [];
   const historyMap = {};
   
-  // Create monthly timeline array from June 2021 to June 2026
+  // Create monthly timeline array from June 2021 to May 2026 (strictly capping at May)
   let curYear = 2021, curMonth = 6;
-  while (curYear < 2026 || (curYear === 2026 && curMonth <= 6)) {
+  while (curYear < 2026 || (curYear === 2026 && curMonth <= 5)) {
     const dStr = `${curYear}-${String(curMonth).padStart(2, '0')}-01`;
     dates.push(dStr);
     curMonth++;
@@ -574,7 +580,7 @@ function generate60MonthSeries(anchors, startValue, endValue, defaultGrowth = 0.
     historyMap[a.date] = { value: a.value, label: a.label || "" };
   });
 
-  // Linearly interpolate intermediate points to guarantee exactly 60+ continuous monthly data points
+  // Linearly interpolate intermediate points to guarantee continuous monthly data points
   let resolvedPoints = [];
   let lastKnownDate = dates[0];
   let lastKnownVal = historyMap[lastKnownDate] ? historyMap[lastKnownDate].value : startValue;
@@ -614,14 +620,14 @@ function generate60MonthSeries(anchors, startValue, endValue, defaultGrowth = 0.
 }
 
 // ============================================================
-// SYSTEM SEED DATA (Synthesized historical benchmarks)
+// SYSTEM SEED DATA (Synthesized historical benchmarks with exact BBS May 2026 data)
 // ============================================================
 const SEED_INDICATORS = {
   // ---------------- BANGLADESH MACRO ----------------
   bd_cpi_yoy: {
     name: "Headline CPI Inflation (YoY)", category: "bd_macro", unit: "%",
     source: "BBS / Bangladesh Bank", freq: "Monthly",
-    note: "National Point-to-Point Consumer Price Index (YoY change). High food import bills and domestic energy rate adjustment cycles pushed headline inflation values towards historic peaks near late 2024.",
+    note: "National Point-to-Point Consumer Price Index (YoY change). The general point-to-point inflation reached 9.42% in May 2026, up from 9.04% in April 2026 (BBS official statistics).",
     history: generate60MonthSeries([
       { date: "2021-06-01", value: 5.64, label: "Post-Pandemic baseline" },
       { date: "2022-06-01", value: 7.56, label: "Global Commodity Shock" },
@@ -631,17 +637,16 @@ const SEED_INDICATORS = {
       { date: "2025-06-01", value: 9.54 },
       { date: "2025-12-01", value: 8.48, label: "Stabilization Pivot" },
       { date: "2026-01-01", value: 8.58 },
-      { date: "2026-02-01", value: 9.13, label: "Fuel rate adjustments" },
+      { date: "2026-02-01", value: 9.13, label: "Pre-Ramadan peak" },
       { date: "2026-03-01", value: 8.71 },
       { date: "2026-04-01", value: 9.04 },
-      { date: "2026-05-01", value: 9.42 },
-      { date: "2026-06-01", value: 9.10, label: "Most recent auction close" }
-    ], 5.5, 9.1, 0.02)
+      { date: "2026-05-01", value: 9.42, label: "May 2026 (Latest BBS)" }
+    ], 5.5, 9.42, 0.02)
   },
   bd_cpi_food: {
     name: "Food Inflation (YoY)", category: "bd_macro", unit: "%",
     source: "BBS", freq: "Monthly",
-    note: "Primary component of CPI index tracking volatile agricultural and imported grain commodities.",
+    note: "Primary component of CPI index tracking volatile agricultural and imported grain commodities. Food inflation rose to 9.06% in May 2026 (BBS).",
     history: generate60MonthSeries([
       { date: "2021-06-01", value: 5.45 },
       { date: "2022-06-01", value: 8.37 },
@@ -649,23 +654,25 @@ const SEED_INDICATORS = {
       { date: "2024-06-01", value: 10.42 },
       { date: "2024-10-01", value: 12.56, label: "Regional Flood Peaks" },
       { date: "2025-06-01", value: 10.12 },
-      { date: "2026-05-01", value: 9.06 },
-      { date: "2026-06-01", value: 9.12 }
-    ], 5.2, 9.1, 0.03)
+      { date: "2026-02-01", value: 9.30 },
+      { date: "2026-03-01", value: 8.24 },
+      { date: "2026-04-01", value: 8.39 },
+      { date: "2026-05-01", value: 9.06, label: "May 2026 (Latest BBS)" }
+    ], 5.2, 9.06, 0.03)
   },
   bd_cpi_nonfood: {
     name: "Non-Food Inflation (YoY)", category: "bd_macro", unit: "%",
     source: "BBS", freq: "Monthly",
-    note: "Tracks utilities, industrial production inputs, and transportation tariffs.",
+    note: "Tracks utilities, industrial production inputs, and transportation tariffs. Non-food inflation rose to 9.71% in May 2026 from 9.57% in April.",
     history: generate60MonthSeries([
       { date: "2021-06-01", value: 5.90 },
       { date: "2022-06-01", value: 6.33 },
       { date: "2023-06-01", value: 9.38 },
       { date: "2024-06-01", value: 9.15 },
       { date: "2025-06-01", value: 8.95 },
-      { date: "2026-05-01", value: 9.71, label: "Import duties shift" },
-      { date: "2026-06-01", value: 9.60 }
-    ], 5.8, 9.6, 0.01)
+      { date: "2026-04-01", value: 9.57 },
+      { date: "2026-05-01", value: 9.71, label: "May 2026 (Latest BBS)" }
+    ], 5.8, 9.71, 0.01)
   },
   bd_forex_reserves: {
     name: "FX Reserves — Gross", category: "bd_macro", unit: "USD bn",
@@ -679,7 +686,7 @@ const SEED_INDICATORS = {
       { date: "2025-06-01", value: 24.15 },
       { date: "2025-12-01", value: 25.10 },
       { date: "2026-02-01", value: 35.11, label: "Bilateral funding infusion" },
-      { date: "2026-06-01", value: 35.63 }
+      { date: "2026-05-01", value: 35.63 }
     ], 45.0, 35.6, -0.01)
   },
   bd_fx_rate: {
@@ -692,7 +699,7 @@ const SEED_INDICATORS = {
       { date: "2023-06-01", value: 108.40 },
       { date: "2024-05-01", value: 117.00, label: "Crawling peg launch" },
       { date: "2025-06-01", value: 120.10 },
-      { date: "2026-06-01", value: 122.50 }
+      { date: "2026-05-01", value: 122.50 }
     ], 84.8, 122.5, 0.01)
   },
   bd_repo_rate: {
@@ -708,7 +715,7 @@ const SEED_INDICATORS = {
       { date: "2023-11-01", value: 7.75 },
       { date: "2024-05-01", value: 8.50 },
       { date: "2024-10-01", value: 10.00, label: "Hawkish shift" },
-      { date: "2026-06-01", value: 10.00 }
+      { date: "2026-05-01", value: 10.00 }
     ], 4.75, 10.0, 0.02)
   },
   bd_interbank_rate: {
@@ -721,13 +728,13 @@ const SEED_INDICATORS = {
       { date: "2023-06-01", value: 6.10 },
       { date: "2024-06-01", value: 9.55 },
       { date: "2025-12-01", value: 9.85 },
-      { date: "2026-06-01", value: 9.90 }
+      { date: "2026-05-01", value: 9.90 }
     ], 2.2, 9.9, 0.03)
   },
   bd_remittances: {
     name: "Remittances (Monthly)", category: "bd_macro", unit: "USD mn",
     source: "Bangladesh Bank", freq: "Monthly",
-    note: "Monthly foreign cash transfers. Vital balance-of-payments buffer.",
+    note: "With dynamic timeline capped exactly at official reported statistics.",
     history: generate60MonthSeries([
       { date: "2021-06-01", value: 1940.80 },
       { date: "2022-06-01", value: 1837.20 },
@@ -735,7 +742,7 @@ const SEED_INDICATORS = {
       { date: "2024-06-01", value: 2541.20 },
       { date: "2025-12-01", value: 2310.50 },
       { date: "2026-01-01", value: 3170.94, label: "Historic peak flow" },
-      { date: "2026-06-01", value: 3020.76 }
+      { date: "2026-05-01", value: 3020.76 }
     ], 1900, 3020, 0.01)
   },
   bd_trade_balance: {
@@ -912,7 +919,7 @@ const SEED_INDICATORS = {
       { date: "2022-06-01", value: 1.625 },
       { date: "2023-07-01", value: 5.375, label: "Tightening cycle peak" },
       { date: "2025-09-01", value: 4.875 },
-      { date: "2026-03-01", value: 3.625, label: "3.50% - 3.75% Corridor" }
+      { date: "2026-05-01", value: 3.625, label: "3.50% - 3.75% Corridor" }
     ], 0.125, 3.625, 0.02)
   },
   us_unemployment: {
@@ -951,7 +958,7 @@ const SEED_INDICATORS = {
       { date: "2023-10-01", value: 4.99, label: "October spike peak" },
       { date: "2024-12-01", value: 3.88 },
       { date: "2025-12-01", value: 3.85 },
-      { date: "2026-06-01", value: 4.40 }
+      { date: "2026-05-01", value: 4.40 }
     ], 1.5, 4.4, 0.01)
   },
 
@@ -966,7 +973,7 @@ const SEED_INDICATORS = {
       { date: "2023-12-01", value: 77.04 },
       { date: "2024-12-01", value: 77.30 },
       { date: "2025-12-01", value: 85.00 },
-      { date: "2026-06-01", value: 79.95 }
+      { date: "2026-05-01", value: 79.95 }
     ], 74.0, 79.95, 0.01)
   },
   wti_crude: {
@@ -979,7 +986,7 @@ const SEED_INDICATORS = {
       { date: "2023-12-01", value: 71.65 },
       { date: "2024-12-01", value: 72.00 },
       { date: "2025-12-01", value: 81.30 },
-      { date: "2026-06-01", value: 77.00 }
+      { date: "2026-05-01", value: 77.00 }
     ], 72.0, 77.0, 0.01)
   }
 };
@@ -1426,7 +1433,7 @@ function renderHighlights() {
   
   bdEl.innerHTML = `
     <li><strong>Asset Quality Risk:</strong> System NPL ratio remains structured at ${npl_last ? npl_last.value + "%" : "—"} reflecting ongoing provisioning adjustments across state-owned commercial scheduled desks.</li>
-    <li><strong>Hawkish Tightening:</strong> Contractionary corridor policy keeps the target Repo Rate at 10.00% to dampen point-to-point CPI expansion pressure sitting at ${cpi_last ? cpi_last.value + "%" : "—"}.</li>
+    <li><strong>Hawkish Tightening:</strong> Contractionary corridor policy keeps the target Repo Rate at 10.00% to dampen point-to-point CPI expansion pressure sitting at ${cpi_last ? cpi_last.value + "%" : "—"} as of May 2026.</li>
     <li><strong>External Cushion:</strong> Reserves stabilize near ${fx_last ? "$" + fx_last.value + "bn" : "—"} due to recent structural crawling-peg foreign exchange operations.</li>`;
   
   const fed = STATE.indicators.us_fed_funds, fed_last = latestPoint(fed.history);
@@ -1745,7 +1752,7 @@ function wireSettingsForm() {
   });
 
   document.getElementById("resetBtn").addEventListener("click", async () => {
-    if (!confirm("Caution: Are you sure you want to reset workspace variables to default multi-year baseline seeds? All custom entries will be lost.")) return;
+    if (!confirm("Caution: Are you sure you want to reset workspace variables to default baseline seeds? All custom entries will be lost.")) return;
     STATE = defaultState();
     await saveState();
     refreshAllVisibleGrids();
@@ -1906,7 +1913,7 @@ function showFatalError(msg) {
 
 window.addEventListener("error", (e) => {
   showFatalError("Script error detected during boot: " + (e.message || "Unknown dynamic reference") +
-    ". Verify firewall accessibility of CDN providers (cdnjs.cloudflare.com) and clear browser storage cache layers.");
+    ". Verify firewall accessibility of CDN providers.");
 });
 window.addEventListener("unhandledrejection", (e) => {
   const msg = e.reason && e.reason.message ? e.reason.message : String(e.reason);
@@ -1916,7 +1923,7 @@ window.addEventListener("unhandledrejection", (e) => {
 let INIT_DONE = false;
 setTimeout(() => {
   if (!INIT_DONE) {
-    showFatalError("Execution timeout exceeded. This occurs if network gateways or firewalls drop third-party assets like Google Fonts or core Chart.js CDNs. Ensure connection stability.");
+    showFatalError("Execution timeout exceeded. Ensure connection stability.");
   }
 }, 12000);
 
@@ -1959,4 +1966,6 @@ async function init() {
 }
 
 init();
-</script></body></html>
+</script>
+</body>
+</html>
