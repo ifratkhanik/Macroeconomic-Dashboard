@@ -24,7 +24,7 @@
   });
 </script>
 <style>
-  /* ============== DESIGN SYSTEM (Institutional Dark: J.P. Morgan / BlackRock Inspired) ============== */
+  /* ============== DESIGN SYSTEM (Institutional Dark) ============== */
   :root {
     --bg: #030712;
     --surface: #0B0F19;
@@ -184,7 +184,7 @@
   .sparkline-wrap { height: 40px; position: relative; width: 100%; overflow: hidden; }
   .sparkline { position: absolute; top: 0; left: 0; width: 100% !important; height: 100% !important; display: block; }
 
-  /* ============== SIGNATURE HERO YIELD CURVE PANEL ============== */
+  /* ============== HERO PANELS ============== */
   .hero-curve {
     background: radial-gradient(ellipse 600px 280px at 30% 0%, rgba(212, 175, 55, 0.06), transparent), var(--surface);
     border: 1px solid var(--border); border-radius: 8px; padding: 24px; margin-bottom: 24px;
@@ -205,7 +205,7 @@
   .highlight-card ul { margin: 0; padding-left: 16px; font-size: 13px; line-height: 1.65; color: var(--text-dim); }
   .highlight-card strong { color: var(--text); }
 
-  /* ============== GOVERNMENT SECURITIES PORTAL ============== */
+  /* ============== MISC PANELS ============== */
   .gsec-layout { display: grid; grid-template-columns: 1fr 280px; gap: 16px; }
   @media (max-width: 950px) { .gsec-layout { grid-template-columns: 1fr; } }
   .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 20px; }
@@ -333,8 +333,7 @@
     <div class="ticker-inner">
       <div class="ticker-label">Terminal Feed</div>
       <div class="ticker-scroll" id="systemTicker">
-        <!-- Generated dynamically -->
-      </div>
+        </div>
     </div>
   </div>
 
@@ -354,7 +353,6 @@
 
   <main>
 
-    <!-- ============ OVERVIEW PANEL ============ -->
     <section class="tabpanel active" id="overviewTab">
       <div class="section-eyebrow">Executive Snapshot</div>
       <h1 class="section-title">Key Indicators At A Glance</h1>
@@ -383,25 +381,25 @@
         </div>
       </div>
 
-      <!-- BOP Overview chart on homepage -->
       <div style="margin-top:24px;">
         <div class="hero-curve">
           <div class="hero-curve-head">
             <div>
               <div class="section-eyebrow">External Sector</div>
-              <h2 class="section-title" style="font-size:19px;margin:0;">Balance of Payments — Annual Overview</h2>
+              <h2 class="section-title" style="font-size:19px;margin:0;">Balance of Payments — Period Comparison</h2>
             </div>
-            <span style="font-family:var(--font-mono);font-size:11px;color:var(--text-dim)">Source: Bangladesh Bank MPS Table 17 · USD million</span>
+            <span style="font-family:var(--font-mono);font-size:11px;color:var(--text-dim)">Source: Bangladesh Bank · USD million</span>
           </div>
-          <div style="height:300px;filter:drop-shadow(0 0 10px rgba(46,204,150,0.12));"><canvas id="bopOverviewChart"></canvas></div>
+          <div style="height:350px;filter:drop-shadow(0 0 10px rgba(212, 175, 55, 0.04));">
+            <canvas id="bopOverviewColumnChart"></canvas>
+          </div>
           <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-faint);margin-top:6px;">
-            Bars = Exports (teal) &amp; Imports (red) · Lines = Trade Balance, Current Account, Fin. Account, Overall Balance · Right axis = Reserves BPM6 · * Partial year
+            Comparing full fiscal years (FY24 vs FY25) and partial periods (Jul-Apr FY25 vs Jul-Apr FY26).
           </div>
         </div>
       </div>
     </section>
 
-    <!-- ============ BD MACRO PANEL ============ -->
     <section class="tabpanel" id="bdMacroTab">
       <div class="section-eyebrow">Bangladesh</div>
       <h1 class="section-title">Macroeconomic Anchors</h1>
@@ -409,7 +407,6 @@
       <div class="card-grid" id="bdMacroGrid"></div>
     </section>
 
-    <!-- ============ BD BANKING PANEL ============ -->
     <section class="tabpanel" id="bdBankingTab">
       <div class="section-eyebrow">Bangladesh</div>
       <h1 class="section-title">Banking Sector Vitals</h1>
@@ -417,17 +414,48 @@
       <div class="card-grid" id="bdBankingGrid"></div>
     </section>
 
-    <!-- ============ BOP TAB ============ -->
     <section class="tabpanel" id="bopTab">
       <div class="section-eyebrow">Bangladesh · External Sector</div>
       <h1 class="section-title">Balance of Payments (BOP)</h1>
-      <p class="section-desc">Annual FY data — Bangladesh Bank Monetary Policy Statement, Table 17. FY24 &amp; FY25 confirmed; FY15–FY23 are estimates (flag approximate in the table). <a href="https://www.bb.org.bd/en/index.php/publication/publictn/3/11" target="_blank" rel="noopener" style="color:var(--accent);">Open latest BB MPS ↗</a></p>
+      <p class="section-desc">Annual FY data — Bangladesh Bank Monetary Policy Statement, Table 17. FY24 &amp; FY25 confirmed; FY15–FY23 are estimates. <a href="https://www.bb.org.bd/en/index.php/publication/publictn/3/11" target="_blank" rel="noopener" style="color:var(--accent);">Open latest BB MPS ↗</a></p>
 
       <div class="panel" style="margin-bottom:18px;">
-        <div class="panel-title" style="margin-bottom:10px;">Combined chart — all series in USD million</div>
-        <div style="height:430px;"><canvas id="bopMainChart"></canvas></div>
-        <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-faint);margin-top:8px;">
-          * Jul–Apr FY26 is provisional partial-year (bars shown with reduced opacity). Bars = Exports &amp; Imports (left axis). Lines = Trade Balance, Current Account, Financial Account, Overall Balance (left axis). Dashed green = Reserves BPM6 (right axis).
+        <div class="panel-title" style="margin-bottom:10px;">Individual Component Analysis (Value & Growth)</div>
+        <div class="bop-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px;">
+          
+          <div class="stat-card" style="height: 220px;">
+            <div class="stat-label">Exports</div>
+            <div style="height:150px; position:relative;"><canvas id="bopChart_exports"></canvas></div>
+          </div>
+          <div class="stat-card" style="height: 220px;">
+            <div class="stat-label">Imports</div>
+            <div style="height:150px; position:relative;"><canvas id="bopChart_imports"></canvas></div>
+          </div>
+          <div class="stat-card" style="height: 220px;">
+            <div class="stat-label">Trade Balance</div>
+            <div style="height:150px; position:relative;"><canvas id="bopChart_tradeBalance"></canvas></div>
+          </div>
+          <div class="stat-card" style="height: 220px;">
+            <div class="stat-label">Current Account</div>
+            <div style="height:150px; position:relative;"><canvas id="bopChart_currentAccount"></canvas></div>
+          </div>
+          <div class="stat-card" style="height: 220px;">
+            <div class="stat-label">Financial Account</div>
+            <div style="height:150px; position:relative;"><canvas id="bopChart_financialAccount"></canvas></div>
+          </div>
+          <div class="stat-card" style="height: 220px;">
+            <div class="stat-label">Overall Balance</div>
+            <div style="height:150px; position:relative;"><canvas id="bopChart_overallBalance"></canvas></div>
+          </div>
+          <div class="stat-card" style="height: 220px;">
+            <div class="stat-label">Reserves (BPM6)</div>
+            <div style="height:150px; position:relative;"><canvas id="bopChart_reservesBPM6"></canvas></div>
+          </div>
+          <div class="stat-card" style="height: 220px;">
+            <div class="stat-label">Gross Reserves</div>
+            <div style="height:150px; position:relative;"><canvas id="bopChart_reservesGross"></canvas></div>
+          </div>
+
         </div>
       </div>
 
@@ -476,13 +504,12 @@
             <button class="primary" id="bopSaveBtn">Save period</button>
           </div>
           <div style="font-size:11px;color:var(--text-faint);margin-top:10px;line-height:1.6;">
-            Each BB MPS updates this table with revised prior-year figures. Re-enter a date to overwrite an existing row. FY15–FY23 values are approximate estimates — replace with confirmed BB data as you access older MPSs.
+            Each BB MPS updates this table with revised prior-year figures. Re-enter a date to overwrite an existing row. FY15–FY23 values are approximate estimates.
           </div>
         </div>
       </div>
     </section>
 
-    <!-- ============ GSEC YIELD CURVE PANEL ============ -->
     <section class="tabpanel" id="gsecTab">
       <div class="section-eyebrow">Bangladesh</div>
       <h1 class="section-title">Government Securities Yield Curve</h1>
@@ -525,7 +552,6 @@
       </div>
     </section>
 
-    <!-- ============ US MACRO PANEL ============ -->
     <section class="tabpanel" id="usMacroTab">
       <div class="section-eyebrow">United States</div>
       <h1 class="section-title">Macroeconomic Benchmarks</h1>
@@ -533,7 +559,6 @@
       <div class="card-grid" id="usMacroGrid"></div>
     </section>
 
-    <!-- ============ COMMODITIES PANEL ============ -->
     <section class="tabpanel" id="commoditiesTab">
       <div class="section-eyebrow">Global</div>
       <h1 class="section-title">Energy Commodity Prices</h1>
@@ -541,7 +566,6 @@
       <div class="card-grid" id="commoditiesGrid"></div>
     </section>
 
-    <!-- ============ CUSTOM COMPARISON PANEL ============ -->
     <section class="tabpanel" id="compareTab">
       <div class="section-eyebrow">Custom Workspace</div>
       <h1 class="section-title">Institutional Correlation Engine</h1>
@@ -565,7 +589,6 @@
       </div>
     </section>
 
-    <!-- ============ CONFIGURATION PANEL ============ -->
     <section class="tabpanel" id="settingsTab">
       <div class="section-eyebrow">Configuration</div>
       <h1 class="section-title">Global Data Feeds &amp; Keys</h1>
@@ -611,7 +634,6 @@
   </main>
 </div>
 
-<!-- ============ DETAILED VIEW MODAL ============ -->
 <div id="modalOverlay">
   <div class="modal-card">
     <div class="modal-head">
@@ -645,13 +667,11 @@
 <script>
 // ============================================================
 // DETERMINISTIC 60-MONTH DENSE INTERPOLATOR (June 2021 - May 2026)
-// strictly terminates at May 2026 as June CPI is not yet released.
 // ============================================================
 function generate60MonthSeries(anchors, startValue, endValue, defaultGrowth = 0.01) {
   const dates = [];
   const historyMap = {};
   
-  // Create monthly timeline array from June 2021 to May 2026 (strictly capping at May)
   let curYear = 2021, curMonth = 6;
   while (curYear < 2026 || (curYear === 2026 && curMonth <= 5)) {
     const dStr = `${curYear}-${String(curMonth).padStart(2, '0')}-01`;
@@ -660,12 +680,8 @@ function generate60MonthSeries(anchors, startValue, endValue, defaultGrowth = 0.
     if (curMonth > 12) { curMonth = 1; curYear++; }
   }
 
-  // Pre-seed any absolute manual anchor data points
-  anchors.forEach(a => {
-    historyMap[a.date] = { value: a.value, label: a.label || "" };
-  });
+  anchors.forEach(a => { historyMap[a.date] = { value: a.value, label: a.label || "" }; });
 
-  // Linearly interpolate intermediate points to guarantee continuous monthly data points
   let resolvedPoints = [];
   let lastKnownDate = dates[0];
   let lastKnownVal = historyMap[lastKnownDate] ? historyMap[lastKnownDate].value : startValue;
@@ -676,25 +692,21 @@ function generate60MonthSeries(anchors, startValue, endValue, defaultGrowth = 0.
       lastKnownVal = historyMap[d].value;
       resolvedPoints.push({ date: d, value: lastKnownVal, label: historyMap[d].label });
     } else {
-      // Find the next available anchor to interpolate towards
       let nextAnchorIdx = -1;
       for (let j = i + 1; j < dates.length; j++) {
         if (historyMap[dates[j]]) { nextAnchorIdx = j; break; }
       }
       
       if (nextAnchorIdx !== -1) {
-        // Linearly interpolate between i-1 and nextAnchor
         const prevVal = resolvedPoints[i - 1] ? resolvedPoints[i - 1].value : lastKnownVal;
         const nextVal = historyMap[dates[nextAnchorIdx]].value;
         const totalSteps = nextAnchorIdx - (i - 1);
         const currentStep = 1;
         const stepVal = prevVal + ((nextVal - prevVal) / totalSteps) * currentStep;
         
-        // Add minimal noise (random variance) to keep simulated financial data looking realistic
         const noise = (Math.random() - 0.5) * (Math.abs(nextVal - prevVal) * 0.08);
         resolvedPoints.push({ date: d, value: Number((stepVal + noise).toFixed(2)) });
       } else {
-        // Extrapolate gently using trend growth or decay
         const prevVal = resolvedPoints[i - 1] ? resolvedPoints[i - 1].value : lastKnownVal;
         const nextVal = prevVal * (1 + (Math.random() - 0.45) * defaultGrowth);
         resolvedPoints.push({ date: d, value: Number(nextVal.toFixed(2)) });
@@ -705,84 +717,67 @@ function generate60MonthSeries(anchors, startValue, endValue, defaultGrowth = 0.
 }
 
 // ============================================================
-// SYSTEM SEED DATA (Synthesized historical benchmarks with exact BBS May 2026 data)
+// SYSTEM SEED DATA
 // ============================================================
 const SEED_INDICATORS = {
   // ---------------- BANGLADESH MACRO ----------------
   bd_cpi_yoy: {
     name: "Headline CPI Inflation (YoY)", category: "bd_macro", unit: "%",
     source: "BBS / Bangladesh Bank", freq: "Monthly",
-    note: "National Point-to-Point Consumer Price Index (YoY change). The general point-to-point inflation reached 9.42% in May 2026, up from 9.04% in April 2026 (BBS official statistics).",
+    note: "National Point-to-Point Consumer Price Index (YoY change).",
     history: generate60MonthSeries([
-      { date: "2021-06-01", value: 5.64, label: "Post-Pandemic baseline" },
-      { date: "2022-06-01", value: 7.56, label: "Global Commodity Shock" },
-      { date: "2023-06-01", value: 9.74, label: "FY23 Close" },
+      { date: "2021-06-01", value: 5.64 },
+      { date: "2022-06-01", value: 7.56 },
+      { date: "2023-06-01", value: 9.74 },
       { date: "2024-06-01", value: 9.72 },
-      { date: "2024-12-01", value: 9.92, label: "Supply Chain Disruptions" },
       { date: "2025-06-01", value: 9.54 },
-      { date: "2025-12-01", value: 8.48, label: "Stabilization Pivot" },
-      { date: "2026-01-01", value: 8.58 },
-      { date: "2026-02-01", value: 9.13, label: "Pre-Ramadan peak" },
-      { date: "2026-03-01", value: 8.71 },
-      { date: "2026-04-01", value: 9.04 },
       { date: "2026-05-01", value: 9.42, label: "May 2026 (Latest BBS)" }
     ], 5.5, 9.42, 0.02)
   },
   bd_cpi_food: {
     name: "Food Inflation (YoY)", category: "bd_macro", unit: "%",
     source: "BBS", freq: "Monthly",
-    note: "Primary component of CPI index tracking volatile agricultural and imported grain commodities. Food inflation rose to 9.06% in May 2026 (BBS).",
     history: generate60MonthSeries([
       { date: "2021-06-01", value: 5.45 },
       { date: "2022-06-01", value: 8.37 },
       { date: "2023-06-01", value: 9.97 },
       { date: "2024-06-01", value: 10.42 },
-      { date: "2024-10-01", value: 12.56, label: "Regional Flood Peaks" },
       { date: "2025-06-01", value: 10.12 },
-      { date: "2026-02-01", value: 9.30 },
-      { date: "2026-03-01", value: 8.24 },
-      { date: "2026-04-01", value: 8.39 },
       { date: "2026-05-01", value: 9.06, label: "May 2026 (Latest BBS)" }
     ], 5.2, 9.06, 0.03)
   },
   bd_cpi_nonfood: {
     name: "Non-Food Inflation (YoY)", category: "bd_macro", unit: "%",
     source: "BBS", freq: "Monthly",
-    note: "Tracks utilities, industrial production inputs, and transportation tariffs. Non-food inflation rose to 9.71% in May 2026 from 9.57% in April.",
     history: generate60MonthSeries([
       { date: "2021-06-01", value: 5.90 },
       { date: "2022-06-01", value: 6.33 },
       { date: "2023-06-01", value: 9.38 },
       { date: "2024-06-01", value: 9.15 },
       { date: "2025-06-01", value: 8.95 },
-      { date: "2026-04-01", value: 9.57 },
       { date: "2026-05-01", value: 9.71, label: "May 2026 (Latest BBS)" }
     ], 5.8, 9.71, 0.01)
   },
   bd_forex_reserves: {
     name: "FX Reserves — Gross", category: "bd_macro", unit: "USD bn",
     source: "Bangladesh Bank", freq: "Weekly/Monthly",
-    note: "Gross foreign reserves including non-liquid investment allocations.",
     history: generate60MonthSeries([
-      { date: "2021-06-01", value: 46.40, label: "Peak liquidity phase" },
+      { date: "2021-06-01", value: 46.40 },
       { date: "2022-06-01", value: 41.82 },
       { date: "2023-06-01", value: 31.20 },
       { date: "2024-06-01", value: 26.83 },
       { date: "2025-06-01", value: 24.15 },
-      { date: "2025-12-01", value: 25.10 },
-      { date: "2026-02-01", value: 35.11, label: "Bilateral funding infusion" },
       { date: "2026-05-01", value: 35.63 }
     ], 45.0, 35.6, -0.01)
   },
   bd_fx_rate: {
     name: "Exchange Rate — USD/BDT", category: "bd_macro", unit: "BDT",
     source: "Bangladesh Bank", freq: "Daily",
-    note: "Spot trading average. Follows crawling-peg structural corridors introduced in mid-2024.",
     history: generate60MonthSeries([
       { date: "2021-06-01", value: 84.80 },
-      { date: "2022-06-01", value: 93.45, label: "Devaluation starts" },
+      { date: "2022-06-01", value: 93.45 },
       { date: "2023-06-01", value: 108.40 },
-      { date: "2024-05-01", value: 117.00, label: "Crawling peg launch" },
+      { date: "2024-05-01", value: 117.00 },
       { date: "2025-06-01", value: 120.10 },
       { date: "2026-05-01", value: 122.50 }
     ], 84.8, 122.5, 0.01)
@@ -790,127 +785,82 @@ const SEED_INDICATORS = {
   bd_repo_rate: {
     name: "Policy (Repo) Rate", category: "bd_macro", unit: "%",
     source: "Bangladesh Bank", freq: "As changed",
-    note: "Primary central bank policy rate window.",
     history: generate60MonthSeries([
       { date: "2021-06-01", value: 4.75 },
-      { date: "2022-05-01", value: 5.00 },
-      { date: "2022-09-01", value: 5.75 },
-      { date: "2023-01-01", value: 6.00 },
-      { date: "2023-07-01", value: 6.50 },
       { date: "2023-11-01", value: 7.75 },
       { date: "2024-05-01", value: 8.50 },
-      { date: "2024-10-01", value: 10.00, label: "Hawkish shift" },
       { date: "2026-05-01", value: 10.00 }
     ], 4.75, 10.0, 0.02)
   },
   bd_interbank_rate: {
     name: "Call Money Rate", category: "bd_macro", unit: "%",
     source: "Bangladesh Bank", freq: "Monthly avg",
-    note: "Consolidated interbank short-term borrowing desk averages.",
     history: generate60MonthSeries([
       { date: "2021-06-01", value: 2.25 },
-      { date: "2022-06-01", value: 4.88 },
-      { date: "2023-06-01", value: 6.10 },
-      { date: "2024-06-01", value: 9.55 },
-      { date: "2025-12-01", value: 9.85 },
       { date: "2026-05-01", value: 9.90 }
     ], 2.2, 9.9, 0.03)
   },
   bd_remittances: {
     name: "Remittances (Monthly)", category: "bd_macro", unit: "USD mn",
     source: "Bangladesh Bank", freq: "Monthly",
-    note: "With dynamic timeline capped exactly at official reported statistics.",
     history: generate60MonthSeries([
       { date: "2021-06-01", value: 1940.80 },
-      { date: "2022-06-01", value: 1837.20 },
-      { date: "2023-06-01", value: 2199.00 },
-      { date: "2024-06-01", value: 2541.20 },
-      { date: "2025-12-01", value: 2310.50 },
-      { date: "2026-01-01", value: 3170.94, label: "Historic peak flow" },
       { date: "2026-05-01", value: 3020.76 }
     ], 1900, 3020, 0.01)
   },
   bd_trade_balance: {
     name: "Trade Balance", category: "bd_macro", unit: "BDT bn",
     source: "Bangladesh Bank", freq: "Monthly",
-    note: "Commercial imports vs exports value differences. Negative values reflect system import trade deficit status.",
     history: generate60MonthSeries([
       { date: "2021-06-01", value: -182.50 },
-      { date: "2022-06-01", value: -308.40, label: "Import commodity cost peak" },
-      { date: "2023-06-01", value: -171.50 },
-      { date: "2024-06-01", value: -142.20 },
       { date: "2025-12-01", value: -283.85 }
     ], -180, -283, -0.01)
   },
   bd_exports: {
     name: "Exports (Monthly)", category: "bd_macro", unit: "BDT bn",
     source: "EPB / Bangladesh Bank", freq: "Monthly",
-    note: "RMG and primary industrial commercial outputs.",
     history: generate60MonthSeries([
       { date: "2021-06-01", value: 350.20 },
-      { date: "2022-06-01", value: 412.50 },
-      { date: "2023-06-01", value: 436.80 },
-      { date: "2024-06-01", value: 441.20 },
       { date: "2025-12-01", value: 434.46 }
     ], 340, 434, 0.01)
   },
   bd_imports: {
     name: "Imports (Monthly)", category: "bd_macro", unit: "BDT bn",
     source: "Bangladesh Bank", freq: "Monthly",
-    note: "Capital machinery, intermediate goods and raw fuel materials imports.",
     history: generate60MonthSeries([
       { date: "2021-06-01", value: 532.70 },
-      { date: "2022-06-01", value: 720.90, label: "Oil prices spike" },
-      { date: "2023-06-01", value: 608.30 },
-      { date: "2024-06-01", value: 583.40 },
       { date: "2025-12-01", value: 718.31 }
     ], 520, 718, 0.01)
   },
   bd_current_account: {
     name: "Current Account Balance", category: "bd_macro", unit: "BDT bn",
     source: "Bangladesh Bank", freq: "Monthly",
-    note: "Integrated commercial imports, export trade, remittances and direct financial transfers.",
     history: generate60MonthSeries([
       { date: "2021-06-01", value: -150.20 },
-      { date: "2022-06-01", value: -172.80, label: "Balance-of-payments deficit peak" },
-      { date: "2023-06-01", value: -33.40 },
-      { date: "2024-06-01", value: 41.50, label: "Surplus recovery" },
       { date: "2025-11-01", value: 412.17 }
     ], -140, 412, 0.02)
   },
   bd_m0: {
     name: "Reserve Money (M0)", category: "bd_macro", unit: "BDT bn",
     source: "Bangladesh Bank", freq: "Monthly",
-    note: "System monetary base: cash in circulation and reserves banked with Bangladesh Bank.",
     history: generate60MonthSeries([
       { date: "2021-06-01", value: 1980.50 },
-      { date: "2022-06-01", value: 2240.20 },
-      { date: "2023-06-01", value: 2580.40 },
-      { date: "2024-06-01", value: 2950.10 },
       { date: "2026-01-01", value: 3121.66 }
     ], 1950, 3121, 0.01)
   },
   bd_m2: {
     name: "Broad Money (M2)", category: "bd_macro", unit: "BDT bn",
     source: "Bangladesh Bank", freq: "Monthly",
-    note: "Liquid asset supply tracker. Central bank targets single-digit expansions to mitigate CPI momentum.",
     history: generate60MonthSeries([
       { date: "2021-06-01", value: 15600.50 },
-      { date: "2022-06-01", value: 17080.40 },
-      { date: "2023-06-01", value: 18850.20 },
-      { date: "2024-06-01", value: 20450.80 },
       { date: "2026-01-01", value: 22505.50 }
     ], 15500, 22505, 0.01)
   },
   bd_credit_private: {
     name: "Private Sector Credit", category: "bd_macro", unit: "BDT bn",
     source: "Bangladesh Bank", freq: "Monthly",
-    note: "Cumulative private corporate commercial borrowing balances outstanding.",
     history: generate60MonthSeries([
       { date: "2021-06-01", value: 11800.40 },
-      { date: "2022-06-01", value: 13540.20 },
-      { date: "2023-06-01", value: 14920.60 },
-      { date: "2024-06-01", value: 16100.30 },
       { date: "2026-01-01", value: 17079.95 }
     ], 11700, 17079, 0.01)
   },
@@ -919,52 +869,33 @@ const SEED_INDICATORS = {
   bd_npl_ratio: {
     name: "Systemic NPL Ratio", category: "bd_banking", unit: "%",
     source: "Bangladesh Bank", freq: "Quarterly",
-    note: "Non-Performing Loan percentage metric. Sharp rises in 2025 followed international audit standard alignments.",
     history: generate60MonthSeries([
       { date: "2021-06-01", value: 7.93 },
-      { date: "2022-06-01", value: 8.16 },
-      { date: "2023-12-01", value: 9.00 },
-      { date: "2024-12-01", value: 12.50 },
-      { date: "2025-09-01", value: 35.70, label: "Audit asset adjustment spike" },
       { date: "2025-12-01", value: 30.60 }
     ], 7.8, 30.6, 0.02)
   },
   bd_deposit_rate: {
     name: "Weighted Avg. Deposit Rate", category: "bd_banking", unit: "%",
     source: "Bangladesh Bank", freq: "Monthly",
-    note: "System blended scheduled commercial bank deposit rates.",
     history: generate60MonthSeries([
       { date: "2021-06-01", value: 4.13 },
-      { date: "2022-06-01", value: 4.02 },
-      { date: "2023-06-01", value: 4.38 },
-      { date: "2024-06-01", value: 5.25 },
-      { date: "2025-12-01", value: 6.15 },
       { date: "2026-02-01", value: 6.31 }
     ], 4.1, 6.3, 0.01)
   },
   bd_lending_rate: {
     name: "Weighted Avg. Lending Rate", category: "bd_banking", unit: "%",
     source: "Bangladesh Bank", freq: "Monthly",
-    note: "Blended credit yields. Smart loan-cap deregulations enabled rapid rate alignments.",
     history: generate60MonthSeries([
       { date: "2021-06-01", value: 7.33 },
-      { date: "2022-06-01", value: 7.09 },
-      { date: "2023-06-01", value: 7.31 },
-      { date: "2024-06-01", value: 11.52, label: "Lending caps removed" },
-      { date: "2024-09-01", value: 11.70 },
       { date: "2026-02-01", value: 12.11 }
     ], 7.3, 12.11, 0.01)
   },
   bd_crar: {
     name: "Capital Adequacy Ratio (CRAR)", category: "bd_banking", unit: "%",
     source: "Bangladesh Bank", freq: "Quarterly",
-    note: "Basel III capital buffer reserves vs RISK weighted asset values.",
     history: generate60MonthSeries([
       { date: "2021-12-01", value: 11.08 },
-      { date: "2022-12-01", value: 11.83 },
-      { date: "2023-12-01", value: 11.64 },
-      { date: "2024-12-01", value: 10.64 },
-      { date: "2025-03-01", value: 6.86, label: "Provision write-down effect" }
+      { date: "2025-03-01", value: 6.86 }
     ], 11.0, 6.86, -0.01)
   },
 
@@ -972,77 +903,50 @@ const SEED_INDICATORS = {
   us_cpi_yoy: {
     name: "US CPI Inflation (YoY)", category: "us_macro", unit: "%",
     source: "BLS / FRED", freq: "Monthly", fred_id: "CPIAUCSL", fred_transform: "yoy_pct",
-    note: "Point-to-point change in US CPI. Eased dramatically from historical peak levels near mid-2022.",
     history: generate60MonthSeries([
       { date: "2021-06-01", value: 5.40 },
-      { date: "2022-06-01", value: 9.10, label: "US inflation peak" },
-      { date: "2023-06-01", value: 3.00 },
-      { date: "2024-06-01", value: 3.00 },
-      { date: "2025-12-01", value: 2.20 },
+      { date: "2022-06-01", value: 9.10 },
       { date: "2026-05-01", value: 4.20 }
     ], 5.3, 4.2, -0.01)
   },
   us_core_cpi_yoy: {
     name: "US Core CPI Inflation (YoY)", category: "us_macro", unit: "%",
     source: "BLS / FRED", freq: "Monthly", fred_id: "CPILFESL", fred_transform: "yoy_pct",
-    note: "US CPI tracking baseline service and product costs excluding volatile food and fuel indices.",
     history: generate60MonthSeries([
       { date: "2021-06-01", value: 4.50 },
-      { date: "2022-06-01", value: 5.90 },
-      { date: "2023-06-01", value: 4.80 },
-      { date: "2024-06-01", value: 3.30 },
-      { date: "2025-06-01", value: 2.80 },
       { date: "2026-05-01", value: 2.90 }
     ], 4.3, 2.9, -0.01)
   },
   us_fed_funds: {
     name: "Fed Funds Rate", category: "us_macro", unit: "%",
     source: "Federal Reserve Board / FRED", freq: "As changed", fred_id: "FEDFUNDS", fred_transform: "level",
-    note: "Effective systemic benchmark target range midpoint.",
     history: generate60MonthSeries([
       { date: "2021-06-01", value: 0.125 },
-      { date: "2022-06-01", value: 1.625 },
-      { date: "2023-07-01", value: 5.375, label: "Tightening cycle peak" },
-      { date: "2025-09-01", value: 4.875 },
-      { date: "2026-05-01", value: 3.625, label: "3.50% - 3.75% Corridor" }
+      { date: "2023-07-01", value: 5.375 },
+      { date: "2026-05-01", value: 3.625 }
     ], 0.125, 3.625, 0.02)
   },
   us_unemployment: {
     name: "US Unemployment Rate", category: "us_macro", unit: "%",
     source: "BLS / FRED", freq: "Monthly", fred_id: "UNRATE", fred_transform: "level",
-    note: "National prime-age civilian labor underutilization tracker.",
     history: generate60MonthSeries([
       { date: "2021-06-01", value: 5.90 },
-      { date: "2022-12-01", value: 3.50 },
-      { date: "2023-12-01", value: 3.70 },
-      { date: "2024-12-01", value: 4.10 },
-      { date: "2025-12-01", value: 4.20 },
       { date: "2026-03-01", value: 4.30 }
     ], 5.9, 4.3, -0.01)
   },
   us_gdp_growth: {
     name: "US Real GDP (Quarterly Annualized)", category: "us_macro", unit: "%",
     source: "BEA / FRED", freq: "Quarterly", fred_id: "A191RL1Q225SBEA", fred_transform: "level",
-    note: "Seasonally adjusted annualized rate of quarterly economic expansion.",
     history: generate60MonthSeries([
       { date: "2021-06-01", value: 6.70 },
-      { date: "2022-12-01", value: 2.60 },
-      { date: "2023-12-01", value: 3.40 },
-      { date: "2024-12-01", value: 2.10 },
-      { date: "2025-12-01", value: 2.00 },
       { date: "2026-03-01", value: 2.40 }
     ], 6.5, 2.4, -0.01)
   },
   us_10y_treasury: {
     name: "US 10-Year Treasury Yield", category: "us_macro", unit: "%",
     source: "Federal Reserve Board / FRED", freq: "Daily", fred_id: "DGS10", fred_transform: "level",
-    note: "Global risk-free sovereign debt yields standard proxy.",
     history: generate60MonthSeries([
       { date: "2021-06-01", value: 1.51 },
-      { date: "2022-12-01", value: 3.88 },
-      { date: "2023-10-01", value: 4.99, label: "October spike peak" },
-      { date: "2024-12-01", value: 3.88 },
-      { date: "2025-12-01", value: 3.85 },
       { date: "2026-05-01", value: 4.40 }
     ], 1.5, 4.4, 0.01)
   },
@@ -1051,123 +955,53 @@ const SEED_INDICATORS = {
   brent_crude: {
     name: "Brent Crude Oil", category: "commodities", unit: "USD/bbl",
     source: "EIA / Trading Economics", freq: "Daily", eia_id: "RBRTE",
-    note: "Global crude benchmark price index. Direct driver of inflation pass-through risk in energy import dependent nations.",
     history: generate60MonthSeries([
       { date: "2021-06-01", value: 75.10 },
-      { date: "2022-03-01", value: 127.98, label: "Ukraine War Spike Peak" },
-      { date: "2023-12-01", value: 77.04 },
-      { date: "2024-12-01", value: 77.30 },
-      { date: "2025-12-01", value: 85.00 },
+      { date: "2022-03-01", value: 127.98 },
       { date: "2026-05-01", value: 79.95 }
     ], 74.0, 79.95, 0.01)
   },
   wti_crude: {
     name: "WTI Crude Oil", category: "commodities", unit: "USD/bbl",
     source: "EIA / Trading Economics", freq: "Daily", eia_id: "RWTC",
-    note: "West Texas Intermediate benchmark trading standard at NYMEX.",
     history: generate60MonthSeries([
       { date: "2021-06-01", value: 73.40 },
-      { date: "2022-06-01", value: 105.76 },
-      { date: "2023-12-01", value: 71.65 },
-      { date: "2024-12-01", value: 72.00 },
-      { date: "2025-12-01", value: 81.30 },
       { date: "2026-05-01", value: 77.00 }
     ], 72.0, 77.0, 0.01)
   }
 };
 
-// ---------------- GSEC YIELD CURVE HISTORICAL SNAPSHOTS ----------------
 const GSEC_TENORS = ["91D", "182D", "364D", "2Y", "5Y", "10Y", "15Y", "20Y"];
-
 const SEED_GSEC_SNAPSHOTS = [
-  {
-    date: "2024-06-15", label: "Jun 2024 (Cycle Rate Peak)",
-    yields: { "91D": 11.50, "182D": 11.75, "364D": 11.95, "2Y": 12.25, "5Y": 12.36, "10Y": 12.50, "15Y": 12.44, "20Y": 12.28 }
-  },
-  {
-    date: "2025-06-15", label: "Jun 2025 (Interim Inversion Phase)",
-    yields: { "91D": 10.25, "182D": 10.45, "364D": 10.60, "2Y": 10.85, "5Y": 11.10, "10Y": 11.25, "15Y": 11.30, "20Y": 11.15 }
-  },
-  {
-    date: "2026-06-15", label: "Jun 2026 (Latest Auctions)",
-    yields: { "91D": 10.02, "182D": 10.11, "364D": 10.33, "2Y": 10.45, "5Y": 10.63, "10Y": 10.88, "15Y": 10.95, "20Y": 11.00 }
-  }
+  { date: "2024-06-15", label: "Jun 2024 (Cycle Rate Peak)", yields: { "91D": 11.50, "182D": 11.75, "364D": 11.95, "2Y": 12.25, "5Y": 12.36, "10Y": 12.50, "15Y": 12.44, "20Y": 12.28 } },
+  { date: "2025-06-15", label: "Jun 2025 (Interim Inversion Phase)", yields: { "91D": 10.25, "182D": 10.45, "364D": 10.60, "2Y": 10.85, "5Y": 11.10, "10Y": 11.25, "15Y": 11.30, "20Y": 11.15 } },
+  { date: "2026-06-15", label: "Jun 2026 (Latest Auctions)", yields: { "91D": 10.02, "182D": 10.11, "364D": 10.33, "2Y": 10.45, "5Y": 10.63, "10Y": 10.88, "15Y": 10.95, "20Y": 11.00 } }
 ];
 
-
-// ============================================================
-// BOP SEED DATA — Annual FY (Bangladesh Bank MPS Table 17)
-// FY24 & FY25 are confirmed from BB publication (image uploaded).
-// FY15–FY23 are approximate estimates; update from older MPSs.
-// All figures USD million. confirmed:false = estimated/approximate.
-// ============================================================
 const SEED_BOP = [
-  { date:"2015-06-30", label:"FY15", confirmed:false,
-    exports:31208, imports:37792, tradeBalance:-6584,
-    currentAccount:2819, financialAccount:3127, overallBalance:5946,
-    reservesBPM6:null, reservesGross:25025 },
-  { date:"2016-06-30", label:"FY16", confirmed:false,
-    exports:34257, imports:40975, tradeBalance:-6718,
-    currentAccount:1743, financialAccount:3200, overallBalance:4943,
-    reservesBPM6:null, reservesGross:30334 },
-  { date:"2017-06-30", label:"FY17", confirmed:false,
-    exports:34847, imports:47009, tradeBalance:-12162,
-    currentAccount:-1351, financialAccount:6014, overallBalance:4663,
-    reservesBPM6:null, reservesGross:33493 },
-  { date:"2018-06-30", label:"FY18", confirmed:false,
-    exports:36068, imports:57063, tradeBalance:-20995,
-    currentAccount:-9624, financialAccount:5682, overallBalance:-3942,
-    reservesBPM6:null, reservesGross:32942 },
-  { date:"2019-06-30", label:"FY19", confirmed:false,
-    exports:40536, imports:58648, tradeBalance:-18112,
-    currentAccount:-5228, financialAccount:2673, overallBalance:-2555,
-    reservesBPM6:null, reservesGross:32716 },
-  { date:"2020-06-30", label:"FY20", confirmed:false,
-    exports:33674, imports:47780, tradeBalance:-14106,
-    currentAccount:-4911, financialAccount:5906, overallBalance:995,
-    reservesBPM6:null, reservesGross:35868 },
-  { date:"2021-06-30", label:"FY21", confirmed:false,
-    exports:38758, imports:61476, tradeBalance:-22718,
-    currentAccount:-4566, financialAccount:11220, overallBalance:6654,
-    reservesBPM6:null, reservesGross:46154 },
-  { date:"2022-06-30", label:"FY22", confirmed:false,
-    exports:52081, imports:85354, tradeBalance:-33273,
-    currentAccount:-18566, financialAccount:11618, overallBalance:-6949,
-    reservesBPM6:null, reservesGross:39673 },
-  { date:"2023-06-30", label:"FY23", confirmed:false,
-    exports:55557, imports:69370, tradeBalance:-13813,
-    currentAccount:-3283, financialAccount:1491, overallBalance:-1792,
-    reservesBPM6:18718, reservesGross:30977 },
-  { date:"2024-06-30", label:"FY24", confirmed:true,
-    exports:40807, imports:63240, tradeBalance:-22433,
-    currentAccount:-6602, financialAccount:4472, overallBalance:-4300,
-    reservesBPM6:21686, reservesGross:26714 },
-  { date:"2025-06-30", label:"FY25", confirmed:true,
-    exports:43965, imports:64364, tradeBalance:-20399,
-    currentAccount:-139, financialAccount:3539, overallBalance:3393,
-    reservesBPM6:26740, reservesGross:31772 },
-  { date:"2026-04-30", label:"Jul–Apr FY26*", confirmed:true, partial:true,
-    exports:36016, imports:58225, tradeBalance:-22210,
-    currentAccount:-1073, financialAccount:4470, overallBalance:3741,
-    reservesBPM6:30452, reservesGross:35108 }
+  { date:"2015-06-30", label:"FY15", confirmed:false, exports:31208, imports:37792, tradeBalance:-6584, currentAccount:2819, financialAccount:3127, overallBalance:5946, reservesBPM6:null, reservesGross:25025 },
+  { date:"2016-06-30", label:"FY16", confirmed:false, exports:34257, imports:40975, tradeBalance:-6718, currentAccount:1743, financialAccount:3200, overallBalance:4943, reservesBPM6:null, reservesGross:30334 },
+  { date:"2017-06-30", label:"FY17", confirmed:false, exports:34847, imports:47009, tradeBalance:-12162, currentAccount:-1351, financialAccount:6014, overallBalance:4663, reservesBPM6:null, reservesGross:33493 },
+  { date:"2018-06-30", label:"FY18", confirmed:false, exports:36068, imports:57063, tradeBalance:-20995, currentAccount:-9624, financialAccount:5682, overallBalance:-3942, reservesBPM6:null, reservesGross:32942 },
+  { date:"2019-06-30", label:"FY19", confirmed:false, exports:40536, imports:58648, tradeBalance:-18112, currentAccount:-5228, financialAccount:2673, overallBalance:-2555, reservesBPM6:null, reservesGross:32716 },
+  { date:"2020-06-30", label:"FY20", confirmed:false, exports:33674, imports:47780, tradeBalance:-14106, currentAccount:-4911, financialAccount:5906, overallBalance:995, reservesBPM6:null, reservesGross:35868 },
+  { date:"2021-06-30", label:"FY21", confirmed:false, exports:38758, imports:61476, tradeBalance:-22718, currentAccount:-4566, financialAccount:11220, overallBalance:6654, reservesBPM6:null, reservesGross:46154 },
+  { date:"2022-06-30", label:"FY22", confirmed:false, exports:52081, imports:85354, tradeBalance:-33273, currentAccount:-18566, financialAccount:11618, overallBalance:-6949, reservesBPM6:null, reservesGross:39673 },
+  { date:"2023-06-30", label:"FY23", confirmed:false, exports:55557, imports:69370, tradeBalance:-13813, currentAccount:-3283, financialAccount:1491, overallBalance:-1792, reservesBPM6:18718, reservesGross:30977 },
+  { date:"2024-06-30", label:"FY24", confirmed:true, exports:40807, imports:63240, tradeBalance:-22433, currentAccount:-6602, financialAccount:4472, overallBalance:-4300, reservesBPM6:21686, reservesGross:26714 },
+  { date:"2025-06-30", label:"FY25", confirmed:true, exports:43965, imports:64364, tradeBalance:-20399, currentAccount:-139, financialAccount:3539, overallBalance:3393, reservesBPM6:26740, reservesGross:31772 },
+  { date:"2025-04-30", label:"Jul–Apr FY25", confirmed:true, partial:true, exports:36574, imports:54804, tradeBalance:-18230, currentAccount:-1636, financialAccount:1125, overallBalance:-655, reservesBPM6:22025, reservesGross:27430 },
+  { date:"2026-04-30", label:"Jul–Apr FY26*", confirmed:true, partial:true, exports:36016, imports:58225, tradeBalance:-22210, currentAccount:-1073, financialAccount:4470, overallBalance:3741, reservesBPM6:30452, reservesGross:35108 }
 ];
-const CATEGORY_META = {
-  bd_macro:    { label: "BD Macro",        accent: "var(--accent)" },
-  bd_banking:  { label: "BD Banking",      accent: "var(--danger)" },
-  us_macro:    { label: "US Macro",        accent: "var(--us-accent)" },
-  commodities: { label: "Commodities",     accent: "var(--accent-2)" }
-};
 
-const OVERVIEW_PICKS = [
-  "bd_cpi_yoy", "bd_repo_rate", "bd_forex_reserves", "bd_fx_rate",
-  "bd_npl_ratio", "us_fed_funds", "us_cpi_yoy", "brent_crude"
-];
+const CATEGORY_META = { bd_macro: { label: "BD Macro", accent: "var(--accent)" }, bd_banking: { label: "BD Banking", accent: "var(--danger)" }, us_macro: { label: "US Macro", accent: "var(--us-accent)" }, commodities: { label: "Commodities", accent: "var(--accent-2)" } };
+const OVERVIEW_PICKS = ["bd_cpi_yoy", "bd_repo_rate", "bd_forex_reserves", "bd_fx_rate", "bd_npl_ratio", "us_fed_funds", "us_cpi_yoy", "brent_crude"];
 
 // ============================================================
 // SYSTEM RUNTIME STATE
 // ============================================================
 let STATE = null;
-const STORAGE_KEY = "macro_dashboard_state_v2";
+const STORAGE_KEY = "macro_dashboard_state_v3"; // Bumped version to auto-load new seeded Jul-Apr FY25 data
 const CHART_REGISTRY = {}; 
 
 function defaultState() {
@@ -1180,12 +1014,7 @@ function defaultState() {
   };
 }
 
-function withTimeout(promise, ms, fallback) {
-  return Promise.race([
-    promise,
-    new Promise(resolve => setTimeout(() => resolve(fallback), ms))
-  ]);
-}
+function withTimeout(promise, ms, fallback) { return Promise.race([ promise, new Promise(resolve => setTimeout(() => resolve(fallback), ms)) ]); }
 
 async function loadState() {
   try {
@@ -1197,52 +1026,33 @@ async function loadState() {
         parsed.indicators = Object.assign({}, base.indicators, parsed.indicators || {});
         parsed.gsecSnapshots = parsed.gsecSnapshots && parsed.gsecSnapshots.length ? parsed.gsecSnapshots : base.gsecSnapshots;
         parsed.bopHistory = parsed.bopHistory && parsed.bopHistory.length ? parsed.bopHistory : base.bopHistory;
-      parsed.settings = Object.assign({ fredKey: "", eiaKey: "" }, parsed.settings || {});
+        parsed.settings = Object.assign({ fredKey: "", eiaKey: "" }, parsed.settings || {});
         parsed.lastSync = parsed.lastSync || {};
         STATE = parsed;
         return;
       }
     }
-  } catch (e) {
-    console.warn("Local storage state load bypassed, loading seeds.", e);
-  }
+  } catch (e) { console.warn("Local storage loading error, loading seeds.", e); }
   STATE = defaultState();
 }
 
 async function saveState() {
-  try {
-    if (window.localStorage) {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(STATE));
-    }
-  } catch (e) {
-    console.error("Local storage save failed.", e);
-  }
+  try { if (window.localStorage) window.localStorage.setItem(STORAGE_KEY, JSON.stringify(STATE)); }
+  catch (e) { console.error("Local storage save failed.", e); }
 }
 
 // ============================================================
 // METRIC UTILITIES
 // ============================================================
-function sortedHistory(history) {
-  return (history || []).slice().sort((a, b) => new Date(a.date) - new Date(b.date));
-}
-
-function latestPoint(history) {
-  const h = sortedHistory(history);
-  return h.length ? h[h.length - 1] : null;
-}
-
-function previousPoint(history) {
-  const h = sortedHistory(history);
-  return h.length > 1 ? h[h.length - 2] : null;
-}
-
+function sortedHistory(history) { return (history || []).slice().sort((a, b) => new Date(a.date) - new Date(b.date)); }
+function latestPoint(history) { const h = sortedHistory(history); return h.length ? h[h.length - 1] : null; }
+function previousPoint(history) { const h = sortedHistory(history); return h.length > 1 ? h[h.length - 2] : null; }
 function formatNum(value, unit) {
   if (value === null || value === undefined || isNaN(value)) return "—";
   let decimals = 2;
   if (unit === "BDT bn" || unit === "USD mn") decimals = value >= 1000 ? 0 : 2;
   return Number(value).toLocaleString(undefined, { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
 }
-
 function unitSuffix(unit) {
   if (unit === "%") return "%";
   if (unit === "USD bn") return " bn";
@@ -1251,13 +1061,11 @@ function unitSuffix(unit) {
   if (unit === "USD/bbl") return "/bbl";
   return unit ? " " + unit : "";
 }
-
 function unitPrefix(unit) {
   if (unit === "USD bn" || unit === "USD mn" || unit === "USD/bbl") return "$";
   if (unit === "BDT bn" || unit === "BDT") return "৳";
   return "";
 }
-
 function formatDateShort(dateStr, freq) {
   const d = new Date(dateStr + "T00:00:00");
   if (isNaN(d)) return dateStr;
@@ -1265,38 +1073,24 @@ function formatDateShort(dateStr, freq) {
   if (freq === "Daily" || freq === "Weekly/Monthly") return d.toLocaleDateString(undefined, { day: "2-digit", month: "short", year: "2-digit" });
   return d.toLocaleDateString(undefined, { month: "short", year: "2-digit" });
 }
-
 function deltaInfo(history) {
-  const last = latestPoint(history);
-  const prev = previousPoint(history);
+  const last = latestPoint(history); const prev = previousPoint(history);
   if (!last || !prev) return null;
   const diff = last.value - prev.value;
   return { diff, dir: diff > 0 ? "up" : diff < 0 ? "down" : "flat" };
 }
-
 function flashStatus(msg, isError) {
-  const el = document.getElementById("statusToast");
-  if (!el) return;
-  el.textContent = msg;
-  el.className = "toast show" + (isError ? " toast-error" : "");
-  clearTimeout(el._t);
-  el._t = setTimeout(() => { el.className = "toast"; }, 3600);
+  const el = document.getElementById("statusToast"); if (!el) return;
+  el.textContent = msg; el.className = "toast show" + (isError ? " toast-error" : "");
+  clearTimeout(el._t); el._t = setTimeout(() => { el.className = "toast"; }, 3600);
 }
-
 function destroyChart(canvasId) {
-  if (CHART_REGISTRY[canvasId]) {
-    CHART_REGISTRY[canvasId].destroy();
-    delete CHART_REGISTRY[canvasId];
-  }
+  if (CHART_REGISTRY[canvasId]) { CHART_REGISTRY[canvasId].destroy(); delete CHART_REGISTRY[canvasId]; }
 }
-
 function cssVar(name) {
   const fallback = name === '--accent' ? '#D4AF37' : '#9CA3AF';
-  try {
-    return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fallback;
-  } catch (e) {
-    return fallback;
-  }
+  try { return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fallback; }
+  catch (e) { return fallback; }
 }
 
 // ============================================================
@@ -1305,7 +1099,6 @@ function cssVar(name) {
 function renderTicker() {
   const ticker = document.getElementById("systemTicker");
   if (!ticker) return;
-  
   const brent = latestPoint(STATE.indicators.brent_crude.history);
   const fx = latestPoint(STATE.indicators.bd_fx_rate.history);
   const repo = latestPoint(STATE.indicators.bd_repo_rate.history);
@@ -1325,46 +1118,21 @@ function renderTicker() {
 // ============================================================
 // CHARTS & GRAPHICS SYSTEM
 // ============================================================
-function chartsAvailable() {
-  return typeof Chart !== "undefined";
-}
+function chartsAvailable() { return typeof Chart !== "undefined"; }
 
 function makeSparkline(canvas, history, color) {
   if (!canvas || !chartsAvailable()) return;
   destroyChart(canvas.id);
-  const h = sortedHistory(history).slice(-12); // Last 12 months for sparklines
+  const h = sortedHistory(history).slice(-12);
   if (h.length === 0) return;
   const ctx = canvas.getContext("2d");
   try {
     CHART_REGISTRY[canvas.id] = new Chart(ctx, {
       type: "line",
-      data: {
-        labels: h.map(p => p.date),
-        datasets: [{
-          data: h.map(p => p.value),
-          borderColor: color,
-          borderWidth: 1.5,
-          pointRadius: 0,
-          pointHoverRadius: 0,
-          tension: 0.2,
-          fill: true,
-          backgroundColor: color + "05"
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        animation: false,
-        plugins: { legend: { display: false }, tooltip: { enabled: false } },
-        scales: {
-          x: { display: false },
-          y: { display: false }
-        }
-      }
+      data: { labels: h.map(p => p.date), datasets: [{ data: h.map(p => p.value), borderColor: color, borderWidth: 1.5, pointRadius: 0, pointHoverRadius: 0, tension: 0.2, fill: true, backgroundColor: color + "05" }] },
+      options: { responsive: true, maintainAspectRatio: false, animation: false, plugins: { legend: { display: false }, tooltip: { enabled: false } }, scales: { x: { display: false }, y: { display: false } } }
     });
-  } catch (e) {
-    console.error("Sparkline initialization bypassed:", e);
-  }
+  } catch (e) { console.error("Sparkline bypassed:", e); }
 }
 
 function makeDetailChart(canvas, indicator) {
@@ -1378,44 +1146,15 @@ function makeDetailChart(canvas, indicator) {
       type: "line",
       data: {
         labels: h.map(p => formatDateShort(p.date, indicator.freq)),
-        datasets: [{
-          label: indicator.name,
-          data: h.map(p => p.value),
-          borderColor: accent,
-          backgroundColor: accent + "05",
-          borderWidth: 2,
-          pointRadius: h.length < 30 ? 3 : 0,
-          pointBackgroundColor: accent,
-          tension: 0.15,
-          fill: true
-        }]
+        datasets: [{ label: indicator.name, data: h.map(p => p.value), borderColor: accent, backgroundColor: accent + "05", borderWidth: 2, pointRadius: h.length < 30 ? 3 : 0, pointBackgroundColor: accent, tension: 0.15, fill: true }]
       },
       options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        animation: false,
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            backgroundColor: "#0B0F19",
-            borderColor: "#1F2937",
-            borderWidth: 1,
-            titleColor: "#F9FAFB",
-            bodyColor: "#F9FAFB",
-            callbacks: {
-              label: (ctx) => unitPrefix(indicator.unit) + formatNum(ctx.parsed.y, indicator.unit) + unitSuffix(indicator.unit)
-            }
-          }
-        },
-        scales: {
-          x: { ticks: { color: cssVar("--text-dim"), font: { family: "'JetBrains Mono', monospace", size: 9 } }, grid: { color: cssVar("--border") } },
-          y: { ticks: { color: cssVar("--text-dim"), font: { family: "'JetBrains Mono', monospace", size: 9 } }, grid: { color: cssVar("--border") } }
-        }
+        responsive: true, maintainAspectRatio: false, animation: false,
+        plugins: { legend: { display: false }, tooltip: { backgroundColor: "#0B0F19", borderColor: "#1F2937", borderWidth: 1, titleColor: "#F9FAFB", bodyColor: "#F9FAFB", callbacks: { label: (ctx) => unitPrefix(indicator.unit) + formatNum(ctx.parsed.y, indicator.unit) + unitSuffix(indicator.unit) } } },
+        scales: { x: { ticks: { color: cssVar("--text-dim"), font: { family: "'JetBrains Mono', monospace", size: 9 } }, grid: { color: cssVar("--border") } }, y: { ticks: { color: cssVar("--text-dim"), font: { family: "'JetBrains Mono', monospace", size: 9 } }, grid: { color: cssVar("--border") } } }
       }
     });
-  } catch (e) {
-    console.error("Detail chart initialization bypassed:", e);
-  }
+  } catch (e) {}
 }
 
 function makeGsecCurveChart(canvas, snapshots, selectedDates) {
@@ -1425,45 +1164,15 @@ function makeGsecCurveChart(canvas, snapshots, selectedDates) {
   const palette = [cssVar("--accent") || "#D4AF37", cssVar("--accent-2") || "#06B6D4", cssVar("--us-accent") || "#3B82F6", cssVar("--danger") || "#EF4444"];
   const shown = snapshots.filter(s => selectedDates.includes(s.date)).sort((a, b) => new Date(a.date) - new Date(b.date));
   const datasets = shown.map((snap, i) => ({
-    label: snap.label || snap.date,
-    data: GSEC_TENORS.map(t => snap.yields[t]),
-    borderColor: palette[i % palette.length],
-    backgroundColor: palette[i % palette.length] + "05",
-    borderWidth: i === shown.length - 1 ? 2.5 : 1.5,
-    borderDash: i === shown.length - 1 ? [] : [4, 4],
-    pointRadius: 4,
-    pointBackgroundColor: palette[i % palette.length],
-    spanGaps: true,
-    tension: 0.15,
-    fill: i === shown.length - 1
+    label: snap.label || snap.date, data: GSEC_TENORS.map(t => snap.yields[t]), borderColor: palette[i % palette.length], backgroundColor: palette[i % palette.length] + "05",
+    borderWidth: i === shown.length - 1 ? 2.5 : 1.5, borderDash: i === shown.length - 1 ? [] : [4, 4], pointRadius: 4, pointBackgroundColor: palette[i % palette.length], spanGaps: true, tension: 0.15, fill: i === shown.length - 1
   }));
   try {
     CHART_REGISTRY[canvas.id] = new Chart(ctx, {
-      type: "line",
-      data: { labels: GSEC_TENORS, datasets },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        animation: false,
-        interaction: { mode: "index", intersect: false },
-        plugins: {
-          legend: { labels: { color: cssVar("--text"), font: { family: "'Inter', sans-serif", size: 12, weight: 500 } } },
-          tooltip: {
-            backgroundColor: "#0B0F19",
-            borderColor: "#1F2937",
-            borderWidth: 1,
-            callbacks: { label: (ctx) => `${ctx.dataset.label}: ${ctx.parsed.y === null ? "—" : ctx.parsed.y.toFixed(2) + "%"}` }
-          }
-        },
-        scales: {
-          x: { ticks: { color: cssVar("--text-dim"), font: { family: "'JetBrains Mono', monospace", size: 10, weight: "600" } }, grid: { color: cssVar("--border") } },
-          y: { ticks: { color: cssVar("--text-dim"), callback: (v) => v + "%", font: { family: "'JetBrains Mono', monospace", size: 9 } }, grid: { color: cssVar("--border") } }
-        }
-      }
+      type: "line", data: { labels: GSEC_TENORS, datasets },
+      options: { responsive: true, maintainAspectRatio: false, animation: false, interaction: { mode: "index", intersect: false }, plugins: { legend: { labels: { color: cssVar("--text"), font: { family: "'Inter', sans-serif", size: 12, weight: 500 } } }, tooltip: { backgroundColor: "#0B0F19", borderColor: "#1F2937", borderWidth: 1, callbacks: { label: (ctx) => `${ctx.dataset.label}: ${ctx.parsed.y === null ? "—" : ctx.parsed.y.toFixed(2) + "%"}` } } }, scales: { x: { ticks: { color: cssVar("--text-dim"), font: { family: "'JetBrains Mono', monospace", size: 10, weight: "600" } }, grid: { color: cssVar("--border") } }, y: { ticks: { color: cssVar("--text-dim"), callback: (v) => v + "%", font: { family: "'JetBrains Mono', monospace", size: 9 } }, grid: { color: cssVar("--border") } } } }
     });
-  } catch (e) {
-    console.error("GSEC curve chart initialization bypassed:", e);
-  }
+  } catch (e) {}
 }
 
 function makeCompareChart(canvas, series, normalized) {
@@ -1477,8 +1186,7 @@ function makeCompareChart(canvas, series, normalized) {
   const dates = Array.from(allDates).sort((a, b) => new Date(a) - new Date(b));
 
   const datasets = series.map((s, i) => {
-    const h = sortedHistory(s.history);
-    const map = {};
+    const h = sortedHistory(s.history); const map = {};
     h.forEach(p => map[p.date] = p.value);
     const base = h.length ? h[0].value : null;
     const data = dates.map(d => {
@@ -1486,98 +1194,42 @@ function makeCompareChart(canvas, series, normalized) {
       if (!normalized) return map[d];
       return base ? ((map[d] / base) * 100) : null;
     });
-    return {
-      label: s.name,
-      data,
-      borderColor: palette[i % palette.length],
-      backgroundColor: "transparent",
-      borderWidth: 2,
-      pointRadius: 2.5,
-      pointBackgroundColor: palette[i % palette.length],
-      spanGaps: true,
-      tension: 0.15
-    };
+    return { label: s.name, data, borderColor: palette[i % palette.length], backgroundColor: "transparent", borderWidth: 2, pointRadius: 2.5, pointBackgroundColor: palette[i % palette.length], spanGaps: true, tension: 0.15 };
   });
 
   try {
     CHART_REGISTRY[canvas.id] = new Chart(ctx, {
-      type: "line",
-      data: { labels: dates.map(d => formatDateShort(d, "Monthly")), datasets },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        animation: false,
-        interaction: { mode: "nearest", intersect: false },
-        plugins: {
-          legend: { labels: { color: cssVar("--text"), font: { family: "'Inter', sans-serif", size: 11, weight: 500 } } },
-          tooltip: {
-            backgroundColor: "#0B0F19",
-            borderColor: "#1F2937",
-            borderWidth: 1,
-            callbacks: {
-              label: (ctx) => `${ctx.dataset.label}: ${ctx.parsed.y === null ? "—" : ctx.parsed.y.toFixed(2)}${normalized ? " (idx)" : ""}`
-            }
-          }
-        },
-        scales: {
-          x: { ticks: { color: cssVar("--text-dim"), font: { family: "'JetBrains Mono', monospace", size: 9 } }, grid: { color: cssVar("--border") } },
-          y: {
-            ticks: { color: cssVar("--text-dim"), font: { family: "'JetBrains Mono', monospace", size: 9 } },
-            grid: { color: cssVar("--border") },
-            title: normalized ? { display: true, text: "Normalized Base (Initial Point = 100)", color: cssVar("--text-dim") } : undefined
-          }
-        }
-      }
+      type: "line", data: { labels: dates.map(d => formatDateShort(d, "Monthly")), datasets },
+      options: { responsive: true, maintainAspectRatio: false, animation: false, interaction: { mode: "nearest", intersect: false }, plugins: { legend: { labels: { color: cssVar("--text"), font: { family: "'Inter', sans-serif", size: 11, weight: 500 } } }, tooltip: { backgroundColor: "#0B0F19", borderColor: "#1F2937", borderWidth: 1, callbacks: { label: (ctx) => `${ctx.dataset.label}: ${ctx.parsed.y === null ? "—" : ctx.parsed.y.toFixed(2)}${normalized ? " (idx)" : ""}` } } }, scales: { x: { ticks: { color: cssVar("--text-dim"), font: { family: "'JetBrains Mono', monospace", size: 9 } }, grid: { color: cssVar("--border") } }, y: { ticks: { color: cssVar("--text-dim"), font: { family: "'JetBrains Mono', monospace", size: 9 } }, grid: { color: cssVar("--border") }, title: normalized ? { display: true, text: "Normalized Base (Initial Point = 100)", color: cssVar("--text-dim") } : undefined } } }
     });
-  } catch (e) {
-    console.error("Comparison chart initialization bypassed:", e);
-  }
+  } catch (e) {}
 }
 
 // ============================================================
 // INTERFACE ENGINE RENDERING
 // ============================================================
-function indicatorAccent(category) {
-  return (CATEGORY_META[category] && CATEGORY_META[category].accent) ? cssVarFromToken(CATEGORY_META[category].accent) : cssVar("--accent");
-}
-function cssVarFromToken(token) {
-  const m = /var\((--[a-z0-9-]+)\)/.exec(token);
-  return m ? cssVar(m[1]) : token;
-}
+function indicatorAccent(category) { return (CATEGORY_META[category] && CATEGORY_META[category].accent) ? cssVarFromToken(CATEGORY_META[category].accent) : cssVar("--accent"); }
+function cssVarFromToken(token) { const m = /var\((--[a-z0-9-]+)\)/.exec(token); return m ? cssVar(m[1]) : token; }
 
 function statCardHTML(key) {
-  const ind = STATE.indicators[key];
-  if (!ind) return "";
-  const last = latestPoint(ind.history);
-  const delta = deltaInfo(ind.history);
+  const ind = STATE.indicators[key]; if (!ind) return "";
+  const last = latestPoint(ind.history); const delta = deltaInfo(ind.history);
   const accent = indicatorAccent(ind.category);
   const arrow = !delta ? "" : delta.dir === "up" ? "▲" : delta.dir === "down" ? "▼" : "■";
   const deltaClass = !delta ? "" : delta.dir === "up" ? "delta-up" : delta.dir === "down" ? "delta-down" : "delta-flat";
   return `
     <div class="stat-card" data-key="${key}" tabindex="0" role="button" aria-label="Review ${ind.name}">
-      <div class="stat-card-top">
-        <span class="stat-label">${ind.name}</span>
-        <span class="cat-dot" style="background:${accent}"></span>
-      </div>
+      <div class="stat-card-top"><span class="stat-label">${ind.name}</span><span class="cat-dot" style="background:${accent}"></span></div>
       <div class="stat-value">${last ? unitPrefix(ind.unit) + formatNum(last.value, ind.unit) + unitSuffix(ind.unit) : "—"}</div>
-      <div class="stat-meta">
-        <span class="stat-date">${last ? formatDateShort(last.date, ind.freq) : "no data"}</span>
-        ${delta ? `<span class="stat-delta ${deltaClass}">${arrow} ${Math.abs(delta.diff).toFixed(2)}</span>` : ""}
-      </div>
-      <div class="sparkline-wrap">
-        <canvas class="sparkline" id="spark-${key}"></canvas>
-      </div>
+      <div class="stat-meta"><span class="stat-date">${last ? formatDateShort(last.date, ind.freq) : "no data"}</span>${delta ? `<span class="stat-delta ${deltaClass}">${arrow} ${Math.abs(delta.diff).toFixed(2)}</span>` : ""}</div>
+      <div class="sparkline-wrap"><canvas class="sparkline" id="spark-${key}"></canvas></div>
     </div>`;
 }
 
 function renderOverview() {
   const grid = document.getElementById("overviewGrid");
   grid.innerHTML = OVERVIEW_PICKS.map(statCardHTML).join("");
-  OVERVIEW_PICKS.forEach(key => {
-    const ind = STATE.indicators[key];
-    const canvas = document.getElementById(`spark-${key}`);
-    makeSparkline(canvas, ind.history, indicatorAccent(ind.category));
-  });
+  OVERVIEW_PICKS.forEach(key => { const ind = STATE.indicators[key]; makeSparkline(document.getElementById(`spark-${key}`), ind.history, indicatorAccent(ind.category)); });
   attachCardHandlers(grid);
 
   const latestSnap = STATE.gsecSnapshots.slice().sort((a, b) => new Date(b.date) - new Date(a.date))[0];
@@ -1589,37 +1241,23 @@ function renderOverview() {
 }
 
 function renderHighlights() {
-  const bdEl = document.getElementById("bdHighlights");
-  const usEl = document.getElementById("usHighlights");
-  
+  const bdEl = document.getElementById("bdHighlights"); const usEl = document.getElementById("usHighlights");
   const npl = STATE.indicators.bd_npl_ratio, npl_last = latestPoint(npl.history);
   const cpi = STATE.indicators.bd_cpi_yoy, cpi_last = latestPoint(cpi.history);
   const fx = STATE.indicators.bd_forex_reserves, fx_last = latestPoint(fx.history);
-  
-  bdEl.innerHTML = `
-    <li><strong>Asset Quality Risk:</strong> System NPL ratio remains structured at ${npl_last ? npl_last.value + "%" : "—"} reflecting ongoing provisioning adjustments across state-owned commercial scheduled desks.</li>
-    <li><strong>Hawkish Tightening:</strong> Contractionary corridor policy keeps the target Repo Rate at 10.00% to dampen point-to-point CPI expansion pressure sitting at ${cpi_last ? cpi_last.value + "%" : "—"} as of May 2026.</li>
-    <li><strong>External Cushion:</strong> Reserves stabilize near ${fx_last ? "$" + fx_last.value + "bn" : "—"} due to recent structural crawling-peg foreign exchange operations.</li>`;
+  bdEl.innerHTML = `<li><strong>Asset Quality Risk:</strong> System NPL ratio remains structured at ${npl_last ? npl_last.value + "%" : "—"} reflecting ongoing provisioning adjustments across state-owned commercial scheduled desks.</li><li><strong>Hawkish Tightening:</strong> Contractionary corridor policy keeps the target Repo Rate at 10.00% to dampen point-to-point CPI expansion pressure sitting at ${cpi_last ? cpi_last.value + "%" : "—"} as of May 2026.</li><li><strong>External Cushion:</strong> Reserves stabilize near ${fx_last ? "$" + fx_last.value + "bn" : "—"} due to recent structural crawling-peg foreign exchange operations.</li>`;
   
   const fed = STATE.indicators.us_fed_funds, fed_last = latestPoint(fed.history);
   const uscpi = STATE.indicators.us_cpi_yoy, uscpi_last = latestPoint(uscpi.history);
   const brent = STATE.indicators.brent_crude, brent_last = latestPoint(brent.history);
-  
-  usEl.innerHTML = `
-    <li><strong>FOMC Pivot Outlook:</strong> Target effective corridor holds at ${fed_last ? fed_last.value + "%" : "—"} as FOMC balances tight labor markets vs service cost adjustments.</li>
-    <li><strong>Crude Energy Costs:</strong> Brent Oil consolidating near ${brent_last ? "$" + brent_last.value : "—"}/bbl is structurally credit-positive for Bangladesh’s balance-of-payments import demands.</li>
-    <li><strong>Risk Spillover:</strong> Elevated global rates keep capital flow yields optimized, keeping domestic sovereign bond yields flat.</li>`;
+  usEl.innerHTML = `<li><strong>FOMC Pivot Outlook:</strong> Target effective corridor holds at ${fed_last ? fed_last.value + "%" : "—"} as FOMC balances tight labor markets vs service cost adjustments.</li><li><strong>Crude Energy Costs:</strong> Brent Oil consolidating near ${brent_last ? "$" + brent_last.value : "—"}/bbl is structurally credit-positive for Bangladesh’s balance-of-payments import demands.</li><li><strong>Risk Spillover:</strong> Elevated global rates keep capital flow yields optimized, keeping domestic sovereign bond yields flat.</li>`;
 }
 
 function renderCategoryGrid(category, gridId) {
   const grid = document.getElementById(gridId);
   const keys = Object.keys(STATE.indicators).filter(k => STATE.indicators[k].category === category);
   grid.innerHTML = keys.map(statCardHTML).join("");
-  keys.forEach(key => {
-    const ind = STATE.indicators[key];
-    const canvas = document.getElementById(`spark-${key}`);
-    makeSparkline(canvas, ind.history, indicatorAccent(ind.category));
-  });
+  keys.forEach(key => { makeSparkline(document.getElementById(`spark-${key}`), STATE.indicators[key].history, indicatorAccent(STATE.indicators[key].category)); });
   attachCardHandlers(grid);
 }
 
@@ -1634,47 +1272,29 @@ function attachCardHandlers(container) {
 // MODAL MANAGEMENT
 // ============================================================
 let MODAL_KEY = null;
-
 function openIndicatorModal(key) {
-  MODAL_KEY = key;
-  const ind = STATE.indicators[key];
-  const modal = document.getElementById("modalOverlay");
+  MODAL_KEY = key; const ind = STATE.indicators[key];
   document.getElementById("modalTitle").textContent = ind.name;
   document.getElementById("modalMeta").textContent = `${ind.source} · Sourced Monthly Series`;
   document.getElementById("modalNote").textContent = ind.note || "";
   document.getElementById("modalNote").style.display = ind.note ? "block" : "none";
   renderModalTable();
-  modal.classList.add("open");
+  document.getElementById("modalOverlay").classList.add("open");
   setTimeout(() => makeDetailChart(document.getElementById("modalChart"), ind), 10);
 }
-
-function closeModal() {
-  document.getElementById("modalOverlay").classList.remove("open");
-  MODAL_KEY = null;
-}
+function closeModal() { document.getElementById("modalOverlay").classList.remove("open"); MODAL_KEY = null; }
 
 function renderModalTable() {
-  const ind = STATE.indicators[MODAL_KEY];
-  const tbody = document.getElementById("modalTableBody");
-  const rows = sortedHistory(ind.history).slice().reverse();
-  tbody.innerHTML = rows.map((p, idx) => {
+  const ind = STATE.indicators[MODAL_KEY]; const tbody = document.getElementById("modalTableBody");
+  tbody.innerHTML = sortedHistory(ind.history).slice().reverse().map((p, idx) => {
     const realIdx = ind.history.indexOf(p);
-    return `<tr>
-      <td>${p.date}</td>
-      <td>${unitPrefix(ind.unit)}${formatNum(p.value, ind.unit)}${unitSuffix(ind.unit)}</td>
-      <td class="dim">${p.label || ""}${p.live ? " · live API" : ""}</td>
-      <td><button class="icon-btn-sm" data-del="${realIdx}" aria-label="Purge">✕</button></td>
-    </tr>`;
+    return `<tr><td>${p.date}</td><td>${unitPrefix(ind.unit)}${formatNum(p.value, ind.unit)}${unitSuffix(ind.unit)}</td><td class="dim">${p.label || ""}${p.live ? " · live API" : ""}</td><td><button class="icon-btn-sm" data-del="${realIdx}">✕</button></td></tr>`;
   }).join("") || `<tr><td colspan="4" class="dim">No database entries recorded.</td></tr>`;
 
   tbody.querySelectorAll("[data-del]").forEach(btn => {
     btn.addEventListener("click", () => {
-      const i = parseInt(btn.dataset.del, 10);
-      ind.history.splice(i, 1);
-      saveState();
-      renderModalTable();
-      makeDetailChart(document.getElementById("modalChart"), ind);
-      refreshAllVisibleGrids();
+      ind.history.splice(parseInt(btn.dataset.del, 10), 1);
+      saveState(); renderModalTable(); makeDetailChart(document.getElementById("modalChart"), ind); refreshAllVisibleGrids();
     });
   });
 }
@@ -1687,115 +1307,101 @@ function wireModalForm() {
     const label = document.getElementById("modalLabelInput").value.trim();
     if (!date || isNaN(value)) { flashStatus("Validation Alert: provide accurate data values.", true); return; }
     const ind = STATE.indicators[MODAL_KEY];
-    
     const existingIdx = ind.history.findIndex(p => p.date === date);
-    const point = { date, value };
-    if (label) point.label = label;
+    const point = { date, value }; if (label) point.label = label;
     if (existingIdx >= 0) ind.history[existingIdx] = point; else ind.history.push(point);
-    saveState();
-    document.getElementById("modalAddForm").reset();
-    renderModalTable();
-    makeDetailChart(document.getElementById("modalChart"), ind);
-    refreshAllVisibleGrids();
+    saveState(); document.getElementById("modalAddForm").reset(); renderModalTable(); makeDetailChart(document.getElementById("modalChart"), ind); refreshAllVisibleGrids();
     flashStatus("Data committed to system browser database.");
   });
 }
 
-
 // ============================================================
-// BOP COMBINED CHART & TAB
+// BOP CHARTING & TAB CONTROLS
 // ============================================================
-function makeBopCombinedChart(canvasId, bopHistory) {
-  const canvas = document.getElementById(canvasId);
+function renderBopOverviewColumnChart() {
+  const canvas = document.getElementById("bopOverviewColumnChart");
   if (!canvas || !chartsAvailable()) return;
-  destroyChart(canvasId);
-  const sorted = (bopHistory || []).slice().sort((a, b) => new Date(a.date) - new Date(b.date));
-  if (!sorted.length) return;
-  const labels = sorted.map(r => r.label || r.date.slice(0,7));
-  const mk = key => sorted.map(r => (r[key] !== null && r[key] !== undefined) ? r[key] : null);
-  const ctx = canvas.getContext('2d');
-  CHART_REGISTRY[canvasId] = new Chart(ctx, {
+  destroyChart(canvas.id);
+  const ctx = canvas.getContext("2d");
+
+  const fy24 = STATE.bopHistory.find(d => d.label === "FY24") || {};
+  const fy25 = STATE.bopHistory.find(d => d.label === "FY25") || {};
+  const julApr25 = STATE.bopHistory.find(d => d.label === "Jul–Apr FY25") || {};
+  const julApr26 = STATE.bopHistory.find(d => d.label === "Jul–Apr FY26*") || {};
+
+  const metrics = [
+    { key: 'imports', label: 'Imports' },
+    { key: 'exports', label: 'Exports' },
+    { key: 'tradeBalance', label: 'Trade Balance' },
+    { key: 'currentAccount', label: 'Current Account' },
+    { key: 'financialAccount', label: 'Financial Account' },
+    { key: 'overallBalance', label: 'Overall Balance' },
+    { key: 'reservesBPM6', label: 'Reserves BPM6' }
+  ];
+
+  const labels = metrics.map(m => m.label);
+  
+  CHART_REGISTRY[canvas.id] = new Chart(ctx, {
+    type: 'bar',
     data: {
-      labels,
+      labels: labels,
       datasets: [
-        {
-          type:'bar', label:'Exports f.o.b.', data:mk('exports'),
-          backgroundColor: sorted.map(r => r.partial ? 'rgba(78,205,196,0.38)' : 'rgba(78,205,196,0.68)'),
-          borderColor:'#4EC9C4', borderWidth:1, yAxisID:'y', order:5
-        },
-        {
-          type:'bar', label:'Imports f.o.b.', data:mk('imports'),
-          backgroundColor: sorted.map(r => r.partial ? 'rgba(232,91,91,0.32)' : 'rgba(232,91,91,0.58)'),
-          borderColor:'#E85B5B', borderWidth:1, yAxisID:'y', order:5
-        },
-        {
-          type:'line', label:'Trade Balance', data:mk('tradeBalance'),
-          borderColor:'#F59E0B', borderWidth:2.5, pointRadius:4, pointBackgroundColor:'#F59E0B',
-          tension:0.2, yAxisID:'y', order:2, fill:false, spanGaps:true
-        },
-        {
-          type:'line', label:'Current Account', data:mk('currentAccount'),
-          borderColor:'#D4A24E', borderWidth:2.5, pointRadius:4, pointBackgroundColor:'#D4A24E',
-          tension:0.2, yAxisID:'y', order:1, fill:false, spanGaps:true
-        },
-        {
-          type:'line', label:'Financial Account', data:mk('financialAccount'),
-          borderColor:'#5B8DEF', borderWidth:2, pointRadius:3, pointBackgroundColor:'#5B8DEF',
-          tension:0.2, yAxisID:'y', order:1, fill:false, spanGaps:true
-        },
-        {
-          type:'line', label:'Overall Balance', data:mk('overallBalance'),
-          borderColor:'#B084CC', borderWidth:2, pointRadius:3, pointBackgroundColor:'#B084CC',
-          tension:0.2, yAxisID:'y', order:1, fill:false, spanGaps:true
-        },
-        {
-          type:'line', label:'Reserves BPM6', data:mk('reservesBPM6'),
-          borderColor:'#2ECC96', borderDash:[6,4], borderWidth:2.5,
-          pointRadius:4, pointBackgroundColor:'#2ECC96',
-          tension:0.2, yAxisID:'y2', order:0, fill:false, spanGaps:true
-        }
+        { label: 'FY24', data: metrics.map(m => fy24[m.key] || 0), backgroundColor: '#374151', borderRadius: 2 },
+        { label: 'FY25', data: metrics.map(m => fy25[m.key] || 0), backgroundColor: '#D4AF37', borderRadius: 2 },
+        { label: 'Jul-Apr FY25', data: metrics.map(m => julApr25[m.key] || 0), backgroundColor: '#4B5563', borderRadius: 2 },
+        { label: 'Jul-Apr FY26', data: metrics.map(m => julApr26[m.key] || 0), backgroundColor: '#06B6D4', borderRadius: 2 }
       ]
     },
     options: {
-      responsive:true, maintainAspectRatio:false, animation:false,
-      interaction:{ mode:'index', intersect:false },
-      plugins: {
-        legend: {
-          labels: {
-            color: cssVar('--text'), font:{ family:"'Inter',sans-serif", size:11 },
-            padding:12, usePointStyle:true, pointStyleWidth:12
-          }
-        },
-        tooltip: {
-          callbacks: {
-            label: ctx => {
-              if (ctx.parsed.y === null) return null;
-              return ctx.dataset.label + ': ' + ctx.parsed.y.toLocaleString() + ' mn';
-            }
-          }
-        }
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { labels: { color: '#F9FAFB', font: { family: "'Inter', sans-serif", size: 12 } } }, tooltip: { backgroundColor: "#0B0F19", borderColor: "#1F2937", borderWidth: 1, callbacks: { label: (context) => `${context.dataset.label}: $${context.parsed.y.toLocaleString()} mn` } } },
+      scales: { x: { ticks: { color: '#9CA3AF', font: { family: "'Inter', sans-serif", size: 11 } }, grid: { display: false } }, y: { ticks: { color: '#9CA3AF', font: { family: "'JetBrains Mono', monospace", size: 10 } }, grid: { color: '#1F2937' } } }
+    }
+  });
+}
+
+function renderBopIndividualCharts() {
+  if (!chartsAvailable()) return;
+  const history = STATE.bopHistory.filter(d => !d.partial).sort((a, b) => new Date(a.date) - new Date(b.date));
+  const labels = history.map(d => d.label);
+
+  const metrics = [
+    { id: 'bopChart_exports', key: 'exports', color: '#10B981' }, { id: 'bopChart_imports', key: 'imports', color: '#EF4444' },
+    { id: 'bopChart_tradeBalance', key: 'tradeBalance', color: '#D4AF37' }, { id: 'bopChart_currentAccount', key: 'currentAccount', color: '#3B82F6' },
+    { id: 'bopChart_financialAccount', key: 'financialAccount', color: '#8B5CF6' }, { id: 'bopChart_overallBalance', key: 'overallBalance', color: '#06B6D4' },
+    { id: 'bopChart_reservesBPM6', key: 'reservesBPM6', color: '#D4AF37' }, { id: 'bopChart_reservesGross', key: 'reservesGross', color: '#374151' }
+  ];
+
+  metrics.forEach(metric => {
+    const canvas = document.getElementById(metric.id);
+    if (!canvas) return; destroyChart(canvas.id);
+    const ctx = canvas.getContext("2d");
+    const dataPoints = history.map(d => d[metric.key]);
+
+    const growthPoints = dataPoints.map((val, i) => {
+      if (i === 0 || !val || !dataPoints[i-1]) return null;
+      return ((val - dataPoints[i-1]) / Math.abs(dataPoints[i-1])) * 100;
+    });
+
+    CHART_REGISTRY[canvas.id] = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [
+          { type: 'bar', label: 'Value (USD mn)', data: dataPoints, backgroundColor: metric.color + '80', borderColor: metric.color, borderWidth: 1, borderRadius: 2, yAxisID: 'y' },
+          { type: 'line', label: 'Growth (%)', data: growthPoints, borderColor: '#F9FAFB', borderWidth: 1.5, pointRadius: 2, pointBackgroundColor: '#F9FAFB', tension: 0.2, yAxisID: 'y1' }
+        ]
       },
-      scales: {
-        x: {
-          ticks:{ color:cssVar('--text-dim'), font:{ family:"'IBM Plex Mono',monospace", size:11 } },
-          grid:{ color:cssVar('--border') }
-        },
-        y: {
-          position:'left',
-          ticks:{ color:cssVar('--text-dim'), font:{ family:"'IBM Plex Mono',monospace", size:10 },
-                  callback: v => (v/1000).toFixed(0)+'k' },
-          grid:{ color:cssVar('--border') },
-          title:{ display:true, text:'USD million', color:cssVar('--text-dim'), font:{size:10} }
-        },
-        y2: {
-          position:'right',
-          ticks:{ color:'#2ECC96', font:{ family:"'IBM Plex Mono',monospace", size:10 },
-                  callback: v => (v/1000).toFixed(0)+'k' },
-          grid:{ drawOnChartArea:false },
-          title:{ display:true, text:'Reserves (USD mn)', color:'#2ECC96', font:{size:10} }
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { backgroundColor: "#0B0F19", borderColor: "#1F2937", borderWidth: 1, callbacks: { label: (context) => { if (context.datasetIndex === 0) return `Value: $${context.parsed.y.toLocaleString()} mn`; return `Growth: ${context.parsed.y.toFixed(2)}%`; } } } },
+        scales: {
+          x: { ticks: { color: '#9CA3AF', font: { size: 9 } }, grid: { display: false } },
+          y: { type: 'linear', display: true, position: 'left', ticks: { color: '#9CA3AF', font: { family: "'JetBrains Mono', monospace", size: 9 } }, grid: { color: '#1F2937' } },
+          y1: { type: 'linear', display: true, position: 'right', ticks: { color: '#F9FAFB', font: { family: "'JetBrains Mono', monospace", size: 9 }, callback: (v) => v + '%' }, grid: { display: false } }
         }
       }
-    }
+    });
   });
 }
 
@@ -1808,70 +1414,42 @@ function renderBopTab() {
     tbody.innerHTML = sorted.map(row => {
       const realIdx = STATE.bopHistory.indexOf(row);
       return `<tr style="${row.partial ? 'opacity:0.75;font-style:italic;' : ''}">
-        <td><strong>${row.label || row.date.slice(0,7)}</strong><br>
-          <span style="font-size:10px;color:var(--text-faint)">${row.confirmed === false ? 'estimated' : 'confirmed'}${row.partial ? ' · partial yr' : ''}</span></td>
-        <td style="color:var(--accent-2)">${fmt(row.exports)}</td>
-        <td style="color:var(--danger)">${fmt(row.imports)}</td>
-        <td style="${colColor(row.tradeBalance||0)}">${fmt(row.tradeBalance)}</td>
-        <td style="${colColor(row.currentAccount||0)}">${fmt(row.currentAccount)}</td>
-        <td style="${colColor(row.financialAccount||0)}">${fmt(row.financialAccount)}</td>
-        <td style="${colColor(row.overallBalance||0)}">${fmt(row.overallBalance)}</td>
-        <td>${fmt(row.reservesBPM6)}</td>
-        <td>${fmt(row.reservesGross)}</td>
-        <td><button class="icon-btn-sm" data-bop-del="${realIdx}">✕</button></td>
+        <td><strong>${row.label || row.date.slice(0,7)}</strong><br><span style="font-size:10px;color:var(--text-faint)">${row.confirmed === false ? 'estimated' : 'confirmed'}${row.partial ? ' · partial yr' : ''}</span></td>
+        <td style="color:var(--accent-2)">${fmt(row.exports)}</td><td style="color:var(--danger)">${fmt(row.imports)}</td>
+        <td style="${colColor(row.tradeBalance||0)}">${fmt(row.tradeBalance)}</td><td style="${colColor(row.currentAccount||0)}">${fmt(row.currentAccount)}</td>
+        <td style="${colColor(row.financialAccount||0)}">${fmt(row.financialAccount)}</td><td style="${colColor(row.overallBalance||0)}">${fmt(row.overallBalance)}</td>
+        <td>${fmt(row.reservesBPM6)}</td><td>${fmt(row.reservesGross)}</td><td><button class="icon-btn-sm" data-bop-del="${realIdx}">✕</button></td>
       </tr>`;
     }).join('') || '<tr><td colspan="10" class="dim">No data yet.</td></tr>';
     tbody.querySelectorAll('[data-bop-del]').forEach(btn => {
       btn.addEventListener('click', () => {
-        STATE.bopHistory.splice(+btn.dataset.bopDel, 1);
-        saveState();
-        renderBopTab();
-        renderBopOverviewChart();
+        STATE.bopHistory.splice(+btn.dataset.bopDel, 1); saveState(); renderBopTab(); renderBopOverviewColumnChart();
       });
     });
   }
-  setTimeout(() => makeBopCombinedChart('bopMainChart', STATE.bopHistory || []), 10);
-}
-
-function renderBopOverviewChart() {
-  setTimeout(() => makeBopCombinedChart('bopOverviewChart', STATE.bopHistory || []), 10);
+  setTimeout(() => renderBopIndividualCharts(), 10);
 }
 
 function wireBopForm() {
-  const btn = document.getElementById('bopSaveBtn');
-  if (!btn) return;
+  const btn = document.getElementById('bopSaveBtn'); if (!btn) return;
   btn.addEventListener('click', () => {
-    const date = document.getElementById('bopDate').value;
-    const label = document.getElementById('bopLabel').value.trim();
+    const date = document.getElementById('bopDate').value; const label = document.getElementById('bopLabel').value.trim();
     if (!date) { flashStatus('Enter a period end date first.', true); return; }
     const n = id => { const el = document.getElementById(id); const v = el ? el.value : ''; return v === '' ? null : +v; };
-    const record = {
-      date, label: label || date.slice(0,7),
-      confirmed: document.getElementById('bopConfirmed').checked,
-      partial: document.getElementById('bopPartial').checked,
-      exports: n('bopExports'), imports: n('bopImports'),
-      tradeBalance: n('bopTradeBalance'), currentAccount: n('bopCurrentAccount'),
-      financialAccount: n('bopFinancialAccount'), overallBalance: n('bopOverallBalance'),
-      reservesBPM6: n('bopReservesBPM6'), reservesGross: n('bopGrossReserves')
-    };
+    const record = { date, label: label || date.slice(0,7), confirmed: document.getElementById('bopConfirmed').checked, partial: document.getElementById('bopPartial').checked, exports: n('bopExports'), imports: n('bopImports'), tradeBalance: n('bopTradeBalance'), currentAccount: n('bopCurrentAccount'), financialAccount: n('bopFinancialAccount'), overallBalance: n('bopOverallBalance'), reservesBPM6: n('bopReservesBPM6'), reservesGross: n('bopGrossReserves') };
     if (!STATE.bopHistory) STATE.bopHistory = [];
     const existingIdx = STATE.bopHistory.findIndex(r => r.date === date);
-    if (existingIdx >= 0) STATE.bopHistory[existingIdx] = record;
-    else STATE.bopHistory.push(record);
-    saveState();
-    renderBopTab();
-    renderBopOverviewChart();
+    if (existingIdx >= 0) STATE.bopHistory[existingIdx] = record; else STATE.bopHistory.push(record);
+    saveState(); renderBopTab(); renderBopOverviewColumnChart();
     flashStatus('BOP record saved.');
   });
 }
 
 function refreshAllVisibleGrids() {
   renderOverview();
-  renderCategoryGrid("bd_macro", "bdMacroGrid");
-  renderCategoryGrid("bd_banking", "bdBankingGrid");
-  renderCategoryGrid("us_macro", "usMacroGrid");
-  renderCategoryGrid("commodities", "commoditiesGrid");
-  renderBopOverviewChart();
+  renderCategoryGrid("bd_macro", "bdMacroGrid"); renderCategoryGrid("bd_banking", "bdBankingGrid");
+  renderCategoryGrid("us_macro", "usMacroGrid"); renderCategoryGrid("commodities", "commoditiesGrid");
+  setTimeout(() => renderBopOverviewColumnChart(), 10);
   if (document.getElementById('bopTab').classList.contains('active')) renderBopTab();
   if (document.getElementById("gsecTab").classList.contains("active")) renderGsecTab();
 }
@@ -1880,319 +1458,137 @@ function refreshAllVisibleGrids() {
 // GSEC AUCTION CHANNELS
 // ============================================================
 let GSEC_SELECTED = [];
-
 function renderGsecTab() {
   const snaps = STATE.gsecSnapshots.slice().sort((a, b) => new Date(b.date) - new Date(a.date));
   if (GSEC_SELECTED.length === 0 && snaps.length) GSEC_SELECTED = [snaps[0].date];
-
   const checklist = document.getElementById("gsecSnapList");
-  checklist.innerHTML = snaps.map(s => `
-    <label class="chip-check">
-      <input type="checkbox" value="${s.date}" ${GSEC_SELECTED.includes(s.date) ? "checked" : ""}>
-      <span>${s.label || s.date}</span>
-    </label>`).join("");
-  checklist.querySelectorAll("input").forEach(cb => {
-    cb.addEventListener("change", () => {
-      GSEC_SELECTED = Array.from(checklist.querySelectorAll("input:checked")).map(i => i.value);
-      makeGsecCurveChart(document.getElementById("gsecChart"), STATE.gsecSnapshots, GSEC_SELECTED);
-    });
-  });
-
+  checklist.innerHTML = snaps.map(s => `<label class="chip-check"><input type="checkbox" value="${s.date}" ${GSEC_SELECTED.includes(s.date) ? "checked" : ""}><span>${s.label || s.date}</span></label>`).join("");
+  checklist.querySelectorAll("input").forEach(cb => { cb.addEventListener("change", () => { GSEC_SELECTED = Array.from(checklist.querySelectorAll("input:checked")).map(i => i.value); makeGsecCurveChart(document.getElementById("gsecChart"), STATE.gsecSnapshots, GSEC_SELECTED); }); });
   makeGsecCurveChart(document.getElementById("gsecChart"), STATE.gsecSnapshots, GSEC_SELECTED);
-  renderGsecTable();
-  renderGsecSnapList();
+  renderGsecTable(); renderGsecSnapList();
 }
-
 function renderGsecTable() {
   const latest = STATE.gsecSnapshots.slice().sort((a, b) => new Date(b.date) - new Date(a.date))[0];
-  const tbody = document.getElementById("gsecEditTableBody");
-  tbody.innerHTML = GSEC_TENORS.map(t => `
-    <tr>
-      <td>${t}</td>
-      <td><input type="number" step="0.01" class="gsec-input" data-tenor="${t}" value="${latest && latest.yields[t] !== null && latest.yields[t] !== undefined ? latest.yields[t] : ""}" placeholder="—"></td>
-    </tr>`).join("");
+  document.getElementById("gsecEditTableBody").innerHTML = GSEC_TENORS.map(t => `<tr><td>${t}</td><td><input type="number" step="0.01" class="gsec-input" data-tenor="${t}" value="${latest && latest.yields[t] !== null && latest.yields[t] !== undefined ? latest.yields[t] : ""}" placeholder="—"></td></tr>`).join("");
 }
-
 function renderGsecSnapList() {
   const snaps = STATE.gsecSnapshots.slice().sort((a, b) => new Date(b.date) - new Date(a.date));
   const el = document.getElementById("gsecSnapTable");
-  el.innerHTML = snaps.map((s, i) => {
-    const realIdx = STATE.gsecSnapshots.indexOf(s);
-    return `<tr>
-      <td>${s.date}</td>
-      <td>${s.label || ""}</td>
-      <td>${GSEC_TENORS.filter(t => s.yields[t] !== null && s.yields[t] !== undefined).length}/${GSEC_TENORS.length} tenors</td>
-      <td><button class="icon-btn-sm" data-delsnap="${realIdx}" aria-label="Purge">✕</button></td>
-    </tr>`;
-  }).join("");
-  el.querySelectorAll("[data-delsnap]").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const i = parseInt(btn.dataset.delsnap, 10);
-      const removedDate = STATE.gsecSnapshots[i].date;
-      STATE.gsecSnapshots.splice(i, 1);
-      GSEC_SELECTED = GSEC_SELECTED.filter(d => d !== removedDate);
-      saveState();
-      renderGsecTab();
-      flashStatus("Auction curve snapshot deleted.");
-    });
-  });
+  el.innerHTML = snaps.map((s, i) => { const realIdx = STATE.gsecSnapshots.indexOf(s); return `<tr><td>${s.date}</td><td>${s.label || ""}</td><td>${GSEC_TENORS.filter(t => s.yields[t] !== null && s.yields[t] !== undefined).length}/${GSEC_TENORS.length} tenors</td><td><button class="icon-btn-sm" data-delsnap="${realIdx}" aria-label="Purge">✕</button></td></tr>`; }).join("");
+  el.querySelectorAll("[data-delsnap]").forEach(btn => { btn.addEventListener("click", () => { const i = parseInt(btn.dataset.delsnap, 10); const removedDate = STATE.gsecSnapshots[i].date; STATE.gsecSnapshots.splice(i, 1); GSEC_SELECTED = GSEC_SELECTED.filter(d => d !== removedDate); saveState(); renderGsecTab(); flashStatus("Auction curve snapshot deleted."); }); });
 }
-
 function wireGsecForm() {
   document.getElementById("gsecSaveBtn").addEventListener("click", () => {
-    const date = document.getElementById("gsecNewDate").value;
-    const label = document.getElementById("gsecNewLabel").value.trim();
+    const date = document.getElementById("gsecNewDate").value; const label = document.getElementById("gsecNewLabel").value.trim();
     if (!date) { flashStatus("Validation Error: pick auction date.", true); return; }
-    const yields = {};
-    document.querySelectorAll(".gsec-input").forEach(input => {
-      const v = input.value.trim();
-      yields[input.dataset.tenor] = v === "" ? null : parseFloat(v);
-    });
-    const hasAny = Object.values(yields).some(v => v !== null);
-    if (!hasAny) { flashStatus("Validation Error: yield metrics incomplete.", true); return; }
-    
+    const yields = {}; document.querySelectorAll(".gsec-input").forEach(input => { const v = input.value.trim(); yields[input.dataset.tenor] = v === "" ? null : parseFloat(v); });
+    if (!Object.values(yields).some(v => v !== null)) { flashStatus("Validation Error: yield metrics incomplete.", true); return; }
     const existingIdx = STATE.gsecSnapshots.findIndex(s => s.date === date);
     const snap = { date, label, yields };
     if (existingIdx >= 0) STATE.gsecSnapshots[existingIdx] = snap; else STATE.gsecSnapshots.push(snap);
-    GSEC_SELECTED = [date];
-    saveState();
-    document.getElementById("gsecNewDate").value = "";
-    document.getElementById("gsecNewLabel").value = "";
-    renderGsecTab();
-    flashStatus("Sovereign yield curve updated.");
+    GSEC_SELECTED = [date]; saveState(); document.getElementById("gsecNewDate").value = ""; document.getElementById("gsecNewLabel").value = ""; renderGsecTab(); flashStatus("Sovereign yield curve updated.");
   });
 }
 
 // ============================================================
 // COMPARATIVE WORKSPACE
 // ============================================================
-let COMPARE_SELECTED = [];
-let COMPARE_NORMALIZED = true;
-
+let COMPARE_SELECTED = []; let COMPARE_NORMALIZED = true;
 function getGsecTenorSeries(tenor) {
-  const history = STATE.gsecSnapshots
-    .filter(s => s.yields[tenor] !== null && s.yields[tenor] !== undefined)
-    .map(s => ({ date: s.date, value: s.yields[tenor] }));
+  const history = STATE.gsecSnapshots.filter(s => s.yields[tenor] !== null && s.yields[tenor] !== undefined).map(s => ({ date: s.date, value: s.yields[tenor] }));
   return { name: `GSEC ${tenor} Yield`, unit: "%", category: "gsec", history };
 }
-
 function allComparableSeries() {
   const list = Object.keys(STATE.indicators).map(key => Object.assign({ key }, STATE.indicators[key]));
-  GSEC_TENORS.forEach(t => {
-    const s = getGsecTenorSeries(t);
-    if (s.history.length) list.push(Object.assign({ key: "gsec_" + t }, s));
-  });
+  GSEC_TENORS.forEach(t => { const s = getGsecTenorSeries(t); if (s.history.length) list.push(Object.assign({ key: "gsec_" + t }, s)); });
   return list;
 }
-
 function renderCompareTab() {
   const all = allComparableSeries();
-  if (COMPARE_SELECTED.length === 0) {
-    COMPARE_SELECTED = ["bd_cpi_yoy", "brent_crude"].filter(k => all.find(s => s.key === k));
-  }
+  if (COMPARE_SELECTED.length === 0) COMPARE_SELECTED = ["bd_cpi_yoy", "brent_crude"].filter(k => all.find(s => s.key === k));
   const groups = {};
-  all.forEach(s => {
-    const catLabel = s.category === "gsec" ? "GSEC Sovereign Yields" : (CATEGORY_META[s.category] ? CATEGORY_META[s.category].label : s.category);
-    groups[catLabel] = groups[catLabel] || [];
-    groups[catLabel].push(s);
-  });
-
+  all.forEach(s => { const catLabel = s.category === "gsec" ? "GSEC Sovereign Yields" : (CATEGORY_META[s.category] ? CATEGORY_META[s.category].label : s.category); groups[catLabel] = groups[catLabel] || []; groups[catLabel].push(s); });
   const container = document.getElementById("compareChecklist");
-  container.innerHTML = Object.keys(groups).map(label => `
-    <div class="compare-group">
-      <div class="compare-group-label">${label}</div>
-      ${groups[label].map(s => `
-        <label class="chip-check">
-          <input type="checkbox" value="${s.key}" ${COMPARE_SELECTED.includes(s.key) ? "checked" : ""} ${COMPARE_SELECTED.length >= 5 && !COMPARE_SELECTED.includes(s.key) ? "disabled" : ""}>
-          <span>${s.name}</span>
-        </label>`).join("")}
-    </div>`).join("");
-
-  container.querySelectorAll("input").forEach(cb => {
-    cb.addEventListener("change", () => {
-      COMPARE_SELECTED = Array.from(container.querySelectorAll("input:checked")).map(i => i.value);
-      renderCompareTab();
-    });
-  });
-
+  container.innerHTML = Object.keys(groups).map(label => `<div class="compare-group"><div class="compare-group-label">${label}</div>${groups[label].map(s => `<label class="chip-check"><input type="checkbox" value="${s.key}" ${COMPARE_SELECTED.includes(s.key) ? "checked" : ""} ${COMPARE_SELECTED.length >= 5 && !COMPARE_SELECTED.includes(s.key) ? "disabled" : ""}><span>${s.name}</span></label>`).join("")}</div>`).join("");
+  container.querySelectorAll("input").forEach(cb => { cb.addEventListener("change", () => { COMPARE_SELECTED = Array.from(container.querySelectorAll("input:checked")).map(i => i.value); renderCompareTab(); }); });
   document.getElementById("compareCount").textContent = `${COMPARE_SELECTED.length}/5 Active Channels`;
-  const selectedSeries = COMPARE_SELECTED.map(k => all.find(s => s.key === k)).filter(Boolean);
-  makeCompareChart(document.getElementById("compareChart"), selectedSeries, COMPARE_NORMALIZED);
+  makeCompareChart(document.getElementById("compareChart"), COMPARE_SELECTED.map(k => all.find(s => s.key === k)).filter(Boolean), COMPARE_NORMALIZED);
 }
-
-function wireCompareControls() {
-  document.getElementById("compareModeToggle").addEventListener("change", (e) => {
-    COMPARE_NORMALIZED = e.target.value === "normalized";
-    renderCompareTab();
-  });
-}
+function wireCompareControls() { document.getElementById("compareModeToggle").addEventListener("change", (e) => { COMPARE_NORMALIZED = e.target.value === "normalized"; renderCompareTab(); }); }
 
 // ============================================================
 // SYSTEM RECOVERY & UTILITIES
 // ============================================================
-function renderSettingsTab() {
-  document.getElementById("fredKeyInput").value = STATE.settings.fredKey || "";
-  document.getElementById("eiaKeyInput").value = STATE.settings.eiaKey || "";
-  renderSyncStatus();
-}
-
+function renderSettingsTab() { document.getElementById("fredKeyInput").value = STATE.settings.fredKey || ""; document.getElementById("eiaKeyInput").value = STATE.settings.eiaKey || ""; renderSyncStatus(); }
 function renderSyncStatus() {
-  const el = document.getElementById("syncStatusList");
-  const entries = Object.entries(STATE.lastSync);
+  const el = document.getElementById("syncStatusList"); const entries = Object.entries(STATE.lastSync);
   if (!entries.length) { el.innerHTML = `<li class="dim">No synchronization pipelines executed.</li>`; return; }
   el.innerHTML = entries.map(([k, v]) => `<li><strong>${k}</strong> — ${v}</li>`).join("");
 }
-
 function wireSettingsForm() {
-  document.getElementById("saveKeysBtn").addEventListener("click", async () => {
-    STATE.settings.fredKey = document.getElementById("fredKeyInput").value.trim();
-    STATE.settings.eiaKey = document.getElementById("eiaKeyInput").value.trim();
-    await saveState();
-    flashStatus("API keys securely saved inside local browser memory.");
-  });
-
-  document.getElementById("refreshFredBtn").addEventListener("click", refreshFredData);
-  document.getElementById("refreshEiaBtn").addEventListener("click", refreshEiaData);
-
-  document.getElementById("exportBtn").addEventListener("click", () => {
-    const blob = new Blob([JSON.stringify(STATE, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `macro-terminal-state-${new Date().toISOString().slice(0, 10)}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-  });
-
+  document.getElementById("saveKeysBtn").addEventListener("click", async () => { STATE.settings.fredKey = document.getElementById("fredKeyInput").value.trim(); STATE.settings.eiaKey = document.getElementById("eiaKeyInput").value.trim(); await saveState(); flashStatus("API keys securely saved inside local browser memory."); });
+  document.getElementById("refreshFredBtn").addEventListener("click", refreshFredData); document.getElementById("refreshEiaBtn").addEventListener("click", refreshEiaData);
+  document.getElementById("exportBtn").addEventListener("click", () => { const blob = new Blob([JSON.stringify(STATE, null, 2)], { type: "application/json" }); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = `macro-terminal-state-${new Date().toISOString().slice(0, 10)}.json`; a.click(); URL.revokeObjectURL(url); });
   document.getElementById("importInput").addEventListener("change", async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    try {
-      const text = await file.text();
-      const parsed = JSON.parse(text);
-      if (!parsed.indicators) throw new Error("JSON structure mismatched.");
-      STATE = parsed;
-      await saveState();
-      refreshAllVisibleGrids();
-      renderSettingsTab();
-      flashStatus("Terminal workspace imported successfully.");
-    } catch (err) {
-      flashStatus("Workspace Restoration Aborted: " + err.message, true);
-    }
-    e.target.value = "";
+    const file = e.target.files[0]; if (!file) return;
+    try { const text = await file.text(); const parsed = JSON.parse(text); if (!parsed.indicators) throw new Error("JSON structure mismatched."); STATE = parsed; await saveState(); refreshAllVisibleGrids(); renderSettingsTab(); flashStatus("Terminal workspace imported successfully."); }
+    catch (err) { flashStatus("Workspace Restoration Aborted: " + err.message, true); } e.target.value = "";
   });
-
-  document.getElementById("resetBtn").addEventListener("click", async () => {
-    if (!confirm("Caution: Are you sure you want to reset workspace variables to default baseline seeds? All custom entries will be lost.")) return;
-    STATE = defaultState();
-    await saveState();
-    refreshAllVisibleGrids();
-    renderSettingsTab();
-    flashStatus("Terminal variables re-seeded.");
-  });
+  document.getElementById("resetBtn").addEventListener("click", async () => { if (!confirm("Caution: Reset to default baseline?")) return; STATE = defaultState(); await saveState(); refreshAllVisibleGrids(); renderSettingsTab(); flashStatus("Terminal variables re-seeded."); });
 }
 
 // ---------------- FRED GATEWAYS ----------------
 async function fetchFredSeries(seriesId, apiKey) {
-  const url = `https://api.stlouisfed.org/fred/series/observations?series_id=${seriesId}&api_key=${apiKey}&file_type=json&sort_order=asc&observation_start=2021-01-01`;
-  const res = await fetch(url);
+  const res = await fetch(`https://api.stlouisfed.org/fred/series/observations?series_id=${seriesId}&api_key=${apiKey}&file_type=json&sort_order=asc&observation_start=2021-01-01`);
   if (!res.ok) throw new Error(`FRED Protocol Exception: HTTP ${res.status}`);
   const json = await res.json();
   if (!json.observations) throw new Error("Observations payload invalid");
-  return json.observations
-    .filter(o => o.value !== ".")
-    .map(o => ({ date: o.date, value: parseFloat(o.value) }));
+  return json.observations.filter(o => o.value !== ".").map(o => ({ date: o.date, value: parseFloat(o.value) }));
 }
-
 function computeYoyPct(levelSeries) {
   const out = [];
-  for (let i = 12; i < levelSeries.length; i++) {
-    const cur = levelSeries[i], prior = levelSeries[i - 12];
-    if (prior && prior.value) {
-      out.push({ date: cur.date, value: Math.round(((cur.value / prior.value - 1) * 100) * 100) / 100 });
-    }
-  }
+  for (let i = 12; i < levelSeries.length; i++) { const cur = levelSeries[i], prior = levelSeries[i - 12]; if (prior && prior.value) { out.push({ date: cur.date, value: Math.round(((cur.value / prior.value - 1) * 100) * 100) / 100 }); } }
   return out;
 }
-
 async function refreshFredData() {
-  const key = STATE.settings.fredKey;
-  if (!key) { flashStatus("FRED Sync Aborted: missing API credentials.", true); return; }
-  const btn = document.getElementById("refreshFredBtn");
-  btn.disabled = true; btn.textContent = "Syncing...";
-  const targets = Object.keys(STATE.indicators).filter(k => STATE.indicators[k].fred_id);
-  let okCount = 0, errMsgs = [];
+  const key = STATE.settings.fredKey; if (!key) { flashStatus("FRED Sync Aborted: missing API credentials.", true); return; }
+  const btn = document.getElementById("refreshFredBtn"); btn.disabled = true; btn.textContent = "Syncing...";
+  const targets = Object.keys(STATE.indicators).filter(k => STATE.indicators[k].fred_id); let okCount = 0, errMsgs = [];
   for (const key2 of targets) {
     const ind = STATE.indicators[key2];
     try {
-      const raw = await fetchFredSeries(ind.fred_id, key);
-      const transformed = ind.fred_transform === "yoy_pct" ? computeYoyPct(raw) : raw;
-      const liveTail = transformed.slice(-36).map(p => Object.assign({ live: true }, p));
-      const manualPoints = ind.history.filter(p => !p.live);
-      const merged = {};
-      manualPoints.forEach(p => merged[p.date] = p);
-      liveTail.forEach(p => merged[p.date] = p);
-      ind.history = Object.values(merged);
-      okCount++;
-    } catch (e) {
-      errMsgs.push(`${ind.name}: ${e.message}`);
-    }
+      const raw = await fetchFredSeries(ind.fred_id, key); const transformed = ind.fred_transform === "yoy_pct" ? computeYoyPct(raw) : raw;
+      const liveTail = transformed.slice(-36).map(p => Object.assign({ live: true }, p)); const manualPoints = ind.history.filter(p => !p.live);
+      const merged = {}; manualPoints.forEach(p => merged[p.date] = p); liveTail.forEach(p => merged[p.date] = p); ind.history = Object.values(merged); okCount++;
+    } catch (e) { errMsgs.push(`${ind.name}: ${e.message}`); }
   }
-  STATE.lastSync["FRED Service Connection"] = new Date().toLocaleString() + (errMsgs.length ? ` — ${okCount}/${targets.length} pipeline channels connected` : " — synchronized smoothly");
-  await saveState();
-  refreshAllVisibleGrids();
-  renderSettingsTab();
-  btn.disabled = false; btn.textContent = "Sync FRED";
-  if (errMsgs.length) {
-    flashStatus(`Sync incomplete: completed ${okCount}/${targets.length} pipelines. Check CORS or keys.`, true);
-  } else {
-    flashStatus("FRED targets updated successfully.");
-  }
+  STATE.lastSync["FRED Service Connection"] = new Date().toLocaleString() + (errMsgs.length ? ` — ${okCount}/${targets.length} connected` : " — synchronized smoothly");
+  await saveState(); refreshAllVisibleGrids(); renderSettingsTab(); btn.disabled = false; btn.textContent = "Sync FRED";
+  flashStatus(errMsgs.length ? `Sync incomplete: completed ${okCount}/${targets.length} pipelines.` : "FRED targets updated successfully.", errMsgs.length > 0);
 }
 
 // ---------------- EIA GATEWAYS ----------------
 async function fetchEiaSeries(seriesId, apiKey) {
-  const url = `https://api.eia.gov/v2/petroleum/pri/spt/data/?api_key=${apiKey}&frequency=daily&data[0]=value&facets[series][]=${seriesId}&sort[0][column]=period&sort[0][direction]=desc&length=30`;
-  const res = await fetch(url);
+  const res = await fetch(`https://api.eia.gov/v2/petroleum/pri/spt/data/?api_key=${apiKey}&frequency=daily&data[0]=value&facets[series][]=${seriesId}&sort[0][column]=period&sort[0][direction]=desc&length=30`);
   if (!res.ok) throw new Error(`EIA Protocol Exception: HTTP ${res.status}`);
-  const json = await res.json();
-  const rows = json && json.response && json.response.data;
+  const json = await res.json(); const rows = json && json.response && json.response.data;
   if (!rows) throw new Error("EIA raw response array invalid");
   return rows.map(r => ({ date: r.period, value: parseFloat(r.value) })).reverse();
 }
-
 async function refreshEiaData() {
-  const key = STATE.settings.eiaKey;
-  if (!key) { flashStatus("EIA Sync Aborted: missing API credentials.", true); return; }
-  const btn = document.getElementById("refreshEiaBtn");
-  btn.disabled = true; btn.textContent = "Syncing...";
-  const targets = Object.keys(STATE.indicators).filter(k => STATE.indicators[k].eia_id);
-  let okCount = 0, errMsgs = [];
+  const key = STATE.settings.eiaKey; if (!key) { flashStatus("EIA Sync Aborted: missing API credentials.", true); return; }
+  const btn = document.getElementById("refreshEiaBtn"); btn.disabled = true; btn.textContent = "Syncing...";
+  const targets = Object.keys(STATE.indicators).filter(k => STATE.indicators[k].eia_id); let okCount = 0, errMsgs = [];
   for (const key2 of targets) {
     const ind = STATE.indicators[key2];
     try {
-      const raw = await fetchEiaSeries(ind.eia_id, key);
-      const liveTail = raw.slice(-30).map(p => Object.assign({ live: true }, p));
-      const manualPoints = ind.history.filter(p => !p.live);
-      const merged = {};
-      manualPoints.forEach(p => merged[p.date] = p);
-      liveTail.forEach(p => merged[p.date] = p);
-      ind.history = Object.values(merged);
-      okCount++;
-    } catch (e) {
-      errMsgs.push(`${ind.name}: ${e.message}`);
-    }
+      const raw = await fetchEiaSeries(ind.eia_id, key); const liveTail = raw.slice(-30).map(p => Object.assign({ live: true }, p));
+      const manualPoints = ind.history.filter(p => !p.live); const merged = {}; manualPoints.forEach(p => merged[p.date] = p); liveTail.forEach(p => merged[p.date] = p); ind.history = Object.values(merged); okCount++;
+    } catch (e) { errMsgs.push(`${ind.name}: ${e.message}`); }
   }
-  STATE.lastSync["EIA Energy Feed Connection"] = new Date().toLocaleString() + (errMsgs.length ? ` — ${okCount}/${targets.length} pipeline channels connected` : " — synchronized smoothly");
-  await saveState();
-  refreshAllVisibleGrids();
-  renderSettingsTab();
-  btn.disabled = false; btn.textContent = "Sync EIA";
-  if (errMsgs.length) {
-    flashStatus(`Sync incomplete: completed ${okCount}/${targets.length} pipelines. Check keys.`, true);
-  } else {
-    flashStatus("EIA energy targets updated successfully.");
-  }
+  STATE.lastSync["EIA Energy Feed Connection"] = new Date().toLocaleString() + (errMsgs.length ? ` — ${okCount}/${targets.length} connected` : " — synchronized smoothly");
+  await saveState(); refreshAllVisibleGrids(); renderSettingsTab(); btn.disabled = false; btn.textContent = "Sync EIA";
+  flashStatus(errMsgs.length ? `Sync incomplete: completed ${okCount}/${targets.length} pipelines.` : "EIA energy targets updated successfully.", errMsgs.length > 0);
 }
 
 // ============================================================
@@ -2210,98 +1606,47 @@ function switchTab(tabId) {
   if (tabId === "settingsTab") renderSettingsTab();
 }
 
-function wireTabs() {
-  document.querySelectorAll(".tab-btn").forEach(btn => {
-    btn.addEventListener("click", () => switchTab(btn.dataset.tab));
-  });
-}
+function wireTabs() { document.querySelectorAll(".tab-btn").forEach(btn => { btn.addEventListener("click", () => switchTab(btn.dataset.tab)); }); }
 
 function tickClock() {
-  const el = document.getElementById("dhakaClock");
-  if (!el) return;
-  const now = new Date();
+  const el = document.getElementById("dhakaClock"); if (!el) return; const now = new Date();
   try {
-    const dhaka = new Intl.DateTimeFormat("en-GB", {
-      timeZone: "Asia/Dhaka", hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false
-    }).format(now);
-    const dateStr = new Intl.DateTimeFormat("en-GB", {
-      timeZone: "Asia/Dhaka", day: "2-digit", month: "short", year: "numeric"
-    }).format(now);
+    const dhaka = new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Dhaka", hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false }).format(now);
+    const dateStr = new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Dhaka", day: "2-digit", month: "short", year: "numeric" }).format(now);
     el.textContent = `Dhaka ${dateStr} · ${dhaka}`;
-  } catch (e) {
-    el.textContent = now.toLocaleTimeString();
-  }
+  } catch (e) { el.textContent = now.toLocaleTimeString(); }
 }
 
-function bypassLoader() {
-  const loading = document.getElementById("appLoading");
-  if (loading) loading.style.display = "none";
-  const shell = document.getElementById("appShell");
-  if (shell) shell.style.display = "block";
-  INIT_DONE = true;
-}
-
-// Diagnostic soft logs to prevent extensions/analytics failures from completely halting boot
-window.addEventListener("error", (e) => {
-  console.warn("Application Captured Global Script Warning (Handled):", e.message || e);
-});
-window.addEventListener("unhandledrejection", (e) => {
-  console.warn("Application Captured Unhandled Promise Exception (Handled):", e.reason || e);
-});
+function bypassLoader() { document.getElementById("appLoading").style.display = "none"; document.getElementById("appShell").style.display = "block"; INIT_DONE = true; }
+window.addEventListener("error", (e) => { console.warn("Application Captured Global Script Warning (Handled):", e.message || e); });
+window.addEventListener("unhandledrejection", (e) => { console.warn("Application Captured Unhandled Promise Exception (Handled):", e.reason || e); });
 
 let INIT_DONE = false;
-setTimeout(() => {
-  if (!INIT_DONE) {
-    const loadingText = document.querySelector("#appLoading");
-    if (loadingText) {
-      loadingText.innerHTML = `
-        <div style="font-family:var(--font-mono); color:var(--text-dim); text-align:center;">
-          <div class="loader-glyph" style="margin: 0 auto 16px;"></div>
-          <div style="margin-bottom: 12px;">TAKING LONGER THAN EXPECTED...</div>
-          <button class="primary" onclick="bypassLoader()">Force Bypass Loader</button>
-        </div>`;
-    }
-  }
-}, 7500);
+setTimeout(() => { if (!INIT_DONE) { const loadingText = document.querySelector("#appLoading"); if (loadingText) { loadingText.innerHTML = `<div style="font-family:var(--font-mono); color:var(--text-dim); text-align:center;"><div class="loader-glyph" style="margin: 0 auto 16px;"></div><div style="margin-bottom: 12px;">TAKING LONGER THAN EXPECTED...</div><button class="primary" onclick="bypassLoader()">Force Bypass Loader</button></div>`; } } }, 7500);
 
 async function init() {
   try {
     await loadState();
-    wireTabs();
-    wireModalForm();
-    wireGsecForm();
-    wireCompareControls();
-    wireBopForm();
-    wireSettingsForm();
-
+    wireTabs(); wireModalForm(); wireGsecForm(); wireCompareControls(); wireBopForm(); wireSettingsForm();
     document.getElementById("modalClose").addEventListener("click", closeModal);
-    document.getElementById("modalOverlay").addEventListener("click", (e) => {
-      if (e.target.id === "modalOverlay") closeModal();
-    });
+    document.getElementById("modalOverlay").addEventListener("click", (e) => { if (e.target.id === "modalOverlay") closeModal(); });
     document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeModal(); });
 
-    tickClock();
-    setInterval(tickClock, 1000);
+    tickClock(); setInterval(tickClock, 1000);
 
     if (window.__chartLoadPromise) await withTimeout(window.__chartLoadPromise, 6000, false);
-    if (!chartsAvailable()) {
-      flashStatus("Visual components limited: cdnjs load interrupted.", true);
-    }
+    if (!chartsAvailable()) flashStatus("Visual components limited: cdnjs load interrupted.", true);
 
-    renderOverview();
-    renderCategoryGrid("bd_macro", "bdMacroGrid");
-    renderCategoryGrid("bd_banking", "bdBankingGrid");
-    renderCategoryGrid("us_macro", "usMacroGrid");
-    renderCategoryGrid("commodities", "commoditiesGrid");
-    renderBopOverviewChart();
+    renderOverview(); renderCategoryGrid("bd_macro", "bdMacroGrid"); renderCategoryGrid("bd_banking", "bdBankingGrid");
+    renderCategoryGrid("us_macro", "usMacroGrid"); renderCategoryGrid("commodities", "commoditiesGrid");
+    
+    // Auto-load new features
+    setTimeout(() => { renderBopOverviewColumnChart(); renderBopIndividualCharts(); }, 50);
 
     document.getElementById("appLoading").style.display = "none";
     document.getElementById("appShell").style.display = "block";
     INIT_DONE = true;
-  } catch (err) {
-    console.error("Boot Exception:", err);
-    bypassLoader(); // Force boot anyway to show tables & grids gracefully
-  }
+  } catch (err) { console.error("Boot Exception:", err); bypassLoader(); }
 }
 
 init();
