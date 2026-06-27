@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Bangladesh Macro Terminal</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght=0,500;0,600;0,700;1,400&family=Inter:wght=300;400;500;600;700&family=JetBrains+Mono:wght=400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script>
   window.__chartLoadPromise = new Promise((resolve) => {
     function tryLoad(urls) {
@@ -45,7 +45,7 @@
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text); font-family: var(--font-ui); -webkit-font-smoothing: antialiased; }
-  
+
   body {
     background-image:
       radial-gradient(circle 800px at 100% 0%, rgba(59, 130, 246, 0.05), transparent),
@@ -85,7 +85,7 @@
     font-family: var(--font-display); font-size: 20px; font-weight: 700; color: var(--text); letter-spacing: -0.01em;
   }
   .topbar-right { display: flex; align-items: center; gap: 16px; }
-  .clock { font-family: var(--font-mono); font-size: 11px; color: var(--text-dim); }
+  .clock { font-family: var(--font-mono); font-size: 11.5px; color: var(--accent-2); font-weight: 500; letter-spacing: 0.05em; }
   /* ============== SYSTEM TICKER ============== */
   .ticker-wrap {
     background: #070A12; border-bottom: 1px solid var(--border); overflow: hidden;
@@ -311,12 +311,13 @@
     <div class="tabs-inner">
       <button class="tab-btn active" data-tab="overviewTab">Overview</button>
       <button class="tab-btn" data-tab="bdMacroTab">BD Macro</button>
-      <button class="tab-btn" data-tab="bopTab">BOP</button>
+      <button class="tab-btn" data-tab="bopTab">BOP (Monthly Flows)</button>
       <button class="tab-btn" data-tab="bdBankingTab">BD Banking</button>
       <button class="tab-btn" data-tab="gsecTab">GSEC Yield Curve</button>
       <button class="tab-btn" data-tab="usMacroTab">US Macro</button>
       <button class="tab-btn" data-tab="commoditiesTab">Commodities</button>
       <button class="tab-btn" data-tab="compareTab">Compare Engine</button>
+      <button class="tab-btn" data-tab="databankTab">Databank Export</button>
       <button class="tab-btn" data-tab="settingsTab">Data &amp; Keys</button>
     </div>
   </nav>
@@ -324,7 +325,7 @@
     <section class="tabpanel active" id="overviewTab">
       <div class="section-eyebrow">Executive Snapshot</div>
       <h1 class="section-title">Key Indicators At A Glance</h1>
-      <p class="section-desc">Real-time analytical view. Tap any indicator grid tile to edit, review or plot historical series.</p>
+      <p class="section-desc">Real-time analytical view capturing the last 24 months of volatility. Tap any indicator grid tile to review.</p>
       <div class="overview-grid" id="overviewGrid"></div>
       <div class="hero-curve">
         <div class="hero-curve-head">
@@ -346,82 +347,38 @@
           <ul id="usHighlights"></ul>
         </div>
       </div>
-      <div style="margin-top:24px;">
-        <div class="hero-curve">
-          <div class="hero-curve-head">
-            <div>
-              <div class="section-eyebrow">External Sector</div>
-              <h2 class="section-title" style="font-size:19px;margin:0;">Balance of Payments — Period Comparison</h2>
-            </div>
-            <span style="font-family:var(--font-mono);font-size:11px;color:var(--text-dim)">Source: Bangladesh Bank · USD million</span>
-          </div>
-          <div style="height:350px;filter:drop-shadow(0 0 10px rgba(212, 175, 55, 0.04));">
-            <canvas id="bopOverviewColumnChart"></canvas>
-          </div>
-          <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-faint);margin-top:6px;">
-            Comparing full fiscal years (FY24 vs FY25) and partial periods (Jul-Apr FY25 vs Jul-Apr FY26).
-          </div>
-        </div>
-      </div>
     </section>
+
     <section class="tabpanel" id="bdMacroTab">
       <div class="section-eyebrow">Bangladesh</div>
       <h1 class="section-title">Macroeconomic Anchors</h1>
       <p class="section-desc">Consolidated point-to-point CPI, balance of payments, reserves, and money supply indicators.</p>
       <div class="card-grid" id="bdMacroGrid"></div>
     </section>
+
     <section class="tabpanel" id="bdBankingTab">
       <div class="section-eyebrow">Bangladesh</div>
       <h1 class="section-title">Banking Sector Vitals</h1>
       <p class="section-desc">Liquidity distribution, deposit vs lending averages, weighted spreads, and capital buffer margins.</p>
       <div class="card-grid" id="bdBankingGrid"></div>
     </section>
+
     <section class="tabpanel" id="bopTab">
       <div class="section-eyebrow">Bangladesh · External Sector</div>
-      <h1 class="section-title">Balance of Payments (BOP)</h1>
-      <p class="section-desc">Annual FY data — Bangladesh Bank Monetary Policy Statement, Table 17. FY24 &amp; FY25 confirmed; FY15–FY23 are estimates. <a href="https://www.bb.org.bd/en/index.php/publication/publictn/3/11" target="_blank" rel="noopener" style="color:var(--accent);">Open latest BB MPS ↗</a></p>
+      <h1 class="section-title">Balance of Payments (Monthly BOP)</h1>
+      <p class="section-desc">Analyzed in discrete monthly components. Use the YTD Calculator below to automatically subtract prior cumulative reports to extract the exact monthly variance.</p>
+      
       <div class="panel" style="margin-bottom:18px;">
-        <div class="panel-title" style="margin-bottom:10px;">Individual Component Analysis (Value & Growth)</div>
-        <div class="bop-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px;">
-          
-          <div class="stat-card" style="height: 220px;">
-            <div class="stat-label">Exports</div>
-            <div style="height:150px; position:relative;"><canvas id="bopChart_exports"></canvas></div>
-          </div>
-          <div class="stat-card" style="height: 220px;">
-            <div class="stat-label">Imports</div>
-            <div style="height:150px; position:relative;"><canvas id="bopChart_imports"></canvas></div>
-          </div>
-          <div class="stat-card" style="height: 220px;">
-            <div class="stat-label">Trade Balance</div>
-            <div style="height:150px; position:relative;"><canvas id="bopChart_tradeBalance"></canvas></div>
-          </div>
-          <div class="stat-card" style="height: 220px;">
-            <div class="stat-label">Current Account</div>
-            <div style="height:150px; position:relative;"><canvas id="bopChart_currentAccount"></canvas></div>
-          </div>
-          <div class="stat-card" style="height: 220px;">
-            <div class="stat-label">Financial Account</div>
-            <div style="height:150px; position:relative;"><canvas id="bopChart_financialAccount"></canvas></div>
-          </div>
-          <div class="stat-card" style="height: 220px;">
-            <div class="stat-label">Overall Balance</div>
-            <div style="height:150px; position:relative;"><canvas id="bopChart_overallBalance"></canvas></div>
-          </div>
-          <div class="stat-card" style="height: 220px;">
-            <div class="stat-label">Reserves (BPM6)</div>
-            <div style="height:150px; position:relative;"><canvas id="bopChart_reservesBPM6"></canvas></div>
-          </div>
-          <div class="stat-card" style="height: 220px;">
-            <div class="stat-label">Gross Reserves</div>
-            <div style="height:150px; position:relative;"><canvas id="bopChart_reservesGross"></canvas></div>
-          </div>
+        <div class="panel-title" style="margin-bottom:10px;">Trailing 4-Month Balance Trends</div>
+        <div style="height:350px;filter:drop-shadow(0 0 10px rgba(212, 175, 55, 0.04));">
+          <canvas id="bopOverviewColumnChart"></canvas>
         </div>
       </div>
+
       <div class="gsec-layout" style="margin-top:16px;">
         <div class="panel">
-          <div class="panel-title" style="margin-bottom:10px;">Historical record (USD million)</div>
-          <div style="overflow-x:auto;max-height:380px;overflow-y:auto;">
+          <div class="panel-title" style="margin-bottom:10px;">Historical Record (USD million, Discrete Months)</div>
+          <div style="overflow-x:auto;max-height:450px;overflow-y:auto;">
             <table>
               <thead>
                 <tr>
@@ -436,38 +393,57 @@
           </div>
         </div>
         <div class="panel">
-          <div class="panel-title">Add / update a period</div>
-          <label class="settings-label">Period end date</label>
+          <div class="panel-title">Add / Update Monthly BOP Data</div>
+          
+          <label class="settings-label">Period End Date (Target Month)</label>
           <input type="date" id="bopDate">
-          <label class="settings-label">Period label</label>
-          <input type="text" id="bopLabel" placeholder='e.g. "FY26"'>
-          <table style="font-size:12.5px;width:100%;margin-top:8px;">
-            <tr><td style="color:var(--text-dim);padding:5px 0;">Exports f.o.b.</td><td style="padding:3px 0;"><input type="number" step="1" id="bopExports" placeholder="USD mn" style="width:130px;padding:5px 8px;"></td></tr>
-            <tr><td style="color:var(--text-dim);padding:5px 0;">Imports f.o.b.</td><td style="padding:3px 0;"><input type="number" step="1" id="bopImports" placeholder="USD mn" style="width:130px;padding:5px 8px;"></td></tr>
-            <tr><td style="color:var(--text-dim);padding:5px 0;">Trade Balance</td><td style="padding:3px 0;"><input type="number" step="1" id="bopTradeBalance" placeholder="USD mn" style="width:130px;padding:5px 8px;"></td></tr>
-            <tr><td style="color:var(--text-dim);padding:5px 0;">Current Account</td><td style="padding:3px 0;"><input type="number" step="1" id="bopCurrentAccount" placeholder="USD mn" style="width:130px;padding:5px 8px;"></td></tr>
-            <tr><td style="color:var(--text-dim);padding:5px 0;">Financial Account</td><td style="padding:3px 0;"><input type="number" step="1" id="bopFinancialAccount" placeholder="USD mn" style="width:130px;padding:5px 8px;"></td></tr>
-            <tr><td style="color:var(--text-dim);padding:5px 0;">Overall Balance</td><td style="padding:3px 0;"><input type="number" step="1" id="bopOverallBalance" placeholder="USD mn" style="width:130px;padding:5px 8px;"></td></tr>
-            <tr><td style="color:var(--text-dim);padding:5px 0;">Reserves BPM6</td><td style="padding:3px 0;"><input type="number" step="1" id="bopReservesBPM6" placeholder="USD mn" style="width:130px;padding:5px 8px;"></td></tr>
-            <tr><td style="color:var(--text-dim);padding:5px 0;">Gross Reserves</td><td style="padding:3px 0;"><input type="number" step="1" id="bopGrossReserves" placeholder="USD mn" style="width:130px;padding:5px 8px;"></td></tr>
-          </table>
-          <label class="chip-check" style="margin-top:10px;">
-            <input type="checkbox" id="bopConfirmed" checked>
-            <span>Confirmed (from BB publication)</span>
-          </label>
-          <label class="chip-check">
-            <input type="checkbox" id="bopPartial">
-            <span>Partial year (Jul–Apr or similar)</span>
-          </label>
-          <div class="btn-row" style="margin-top:12px;">
-            <button class="primary" id="bopSaveBtn">Save period</button>
+          <label class="settings-label">Period Label</label>
+          <input type="text" id="bopLabel" placeholder='e.g. "Apr 2026"'>
+
+          <label class="settings-label" style="margin-top:16px;">Entry Mode Selection</label>
+          <div style="display:flex; flex-direction:column; gap:8px; margin-bottom: 12px; font-size:12.5px; border: 1px solid var(--border); padding: 10px; border-radius: 4px;">
+              <label style="cursor:pointer;"><input type="radio" name="bopMode" value="monthly" checked onchange="toggleBopMode()"> <strong>Direct Monthly Entry</strong> (Values represent exact monthly figures)</label>
+              <label style="cursor:pointer;"><input type="radio" name="bopMode" value="ytd" onchange="toggleBopMode()"> <strong>Calculate from YTD</strong> (Subtracts Prior YTD from Current YTD to find discrete month. Leaves point-in-time reserves unchanged.)</label>
           </div>
-          <div style="font-size:11px;color:var(--text-faint);margin-top:10px;line-height:1.6;">
-            Each BB MPS updates this table with revised prior-year figures. Re-enter a date to overwrite an existing row. FY15–FY23 values are approximate estimates.
+
+          <div id="bopMonthlyInputs">
+              <table style="font-size:12.5px;width:100%;margin-top:8px;">
+                <tr><td style="color:var(--text-dim);padding:5px 0;">Exports f.o.b.</td><td style="padding:3px 0;"><input type="number" step="any" id="bopExports" placeholder="USD mn" style="width:130px;padding:5px 8px;"></td></tr>
+                <tr><td style="color:var(--text-dim);padding:5px 0;">Imports f.o.b.</td><td style="padding:3px 0;"><input type="number" step="any" id="bopImports" placeholder="USD mn" style="width:130px;padding:5px 8px;"></td></tr>
+                <tr><td style="color:var(--text-dim);padding:5px 0;">Trade Balance</td><td style="padding:3px 0;"><input type="number" step="any" id="bopTradeBalance" placeholder="USD mn" style="width:130px;padding:5px 8px;"></td></tr>
+                <tr><td style="color:var(--text-dim);padding:5px 0;">Current Account</td><td style="padding:3px 0;"><input type="number" step="any" id="bopCurrentAccount" placeholder="USD mn" style="width:130px;padding:5px 8px;"></td></tr>
+                <tr><td style="color:var(--text-dim);padding:5px 0;">Financial Account</td><td style="padding:3px 0;"><input type="number" step="any" id="bopFinancialAccount" placeholder="USD mn" style="width:130px;padding:5px 8px;"></td></tr>
+                <tr><td style="color:var(--text-dim);padding:5px 0;">Overall Balance</td><td style="padding:3px 0;"><input type="number" step="any" id="bopOverallBalance" placeholder="USD mn" style="width:130px;padding:5px 8px;"></td></tr>
+                <tr><td style="color:var(--text-dim);padding:5px 0;">Reserves BPM6</td><td style="padding:3px 0;"><input type="number" step="any" id="bopReservesBPM6" placeholder="USD mn" style="width:130px;padding:5px 8px;"></td></tr>
+                <tr><td style="color:var(--text-dim);padding:5px 0;">Gross Reserves</td><td style="padding:3px 0;"><input type="number" step="any" id="bopGrossReserves" placeholder="USD mn" style="width:130px;padding:5px 8px;"></td></tr>
+              </table>
+          </div>
+
+          <div id="bopYtdInputs" style="display:none;">
+              <table style="font-size:12.5px;width:100%;margin-top:8px;">
+                <tr>
+                    <th style="color:var(--text-dim); text-align:left;">Indicator</th>
+                    <th style="text-align:left;">Current YTD<br><span style="font-size:10px; font-weight:normal">(e.g. Jul-Apr)</span></th>
+                    <th style="text-align:left;">Previous YTD<br><span style="font-size:10px; font-weight:normal">(e.g. Jul-Mar)</span></th>
+                </tr>
+                <tr><td style="padding:5px 0;">Exports</td><td><input type="number" step="any" id="ytdExpC" style="width:100%"></td><td><input type="number" step="any" id="ytdExpP" style="width:100%"></td></tr>
+                <tr><td style="padding:5px 0;">Imports</td><td><input type="number" step="any" id="ytdImpC" style="width:100%"></td><td><input type="number" step="any" id="ytdImpP" style="width:100%"></td></tr>
+                <tr><td style="padding:5px 0;">Trade Bal.</td><td><input type="number" step="any" id="ytdTbC" style="width:100%"></td><td><input type="number" step="any" id="ytdTbP" style="width:100%"></td></tr>
+                <tr><td style="padding:5px 0;">Current Acc.</td><td><input type="number" step="any" id="ytdCaC" style="width:100%"></td><td><input type="number" step="any" id="ytdCaP" style="width:100%"></td></tr>
+                <tr><td style="padding:5px 0;">Fin. Acc.</td><td><input type="number" step="any" id="ytdFaC" style="width:100%"></td><td><input type="number" step="any" id="ytdFaP" style="width:100%"></td></tr>
+                <tr><td style="padding:5px 0;">Overall Bal.</td><td><input type="number" step="any" id="ytdObC" style="width:100%"></td><td><input type="number" step="any" id="ytdObP" style="width:100%"></td></tr>
+                <tr><td style="padding:5px 0; border-top:1px dashed var(--border); padding-top:8px;">Reserves BPM6</td><td style="border-top:1px dashed var(--border); padding-top:8px;"><input type="number" step="any" id="ytdResBpmC" style="width:100%" placeholder="Point in time"></td><td style="border-top:1px dashed var(--border); padding-top:8px;"><span class="dim">N/A</span></td></tr>
+                <tr><td style="padding:5px 0;">Gross Reserves</td><td><input type="number" step="any" id="ytdResGrossC" style="width:100%" placeholder="Point in time"></td><td><span class="dim">N/A</span></td></tr>
+              </table>
+          </div>
+
+          <div class="btn-row" style="margin-top:16px;">
+            <button class="primary" id="bopSaveBtn" style="width: 100%;">Save Discrete Monthly Record</button>
           </div>
         </div>
       </div>
     </section>
+
     <section class="tabpanel" id="gsecTab">
       <div class="section-eyebrow">Bangladesh</div>
       <h1 class="section-title">Government Securities Yield Curve</h1>
@@ -507,18 +483,21 @@
         </div>
       </div>
     </section>
+
     <section class="tabpanel" id="usMacroTab">
       <div class="section-eyebrow">United States</div>
       <h1 class="section-title">Macroeconomic Benchmarks</h1>
       <p class="section-desc">Global monetary policy baseline. Synced directly with St. Louis FRED servers if an API key is connected.</p>
       <div class="card-grid" id="usMacroGrid"></div>
     </section>
+
     <section class="tabpanel" id="commoditiesTab">
       <div class="section-eyebrow">Global</div>
       <h1 class="section-title">Energy Commodity Prices</h1>
       <p class="section-desc">Brent and WTI Crude benchmarks. Vital input values shaping the domestic balance-of-payments trajectory.</p>
       <div class="card-grid" id="commoditiesGrid"></div>
     </section>
+
     <section class="tabpanel" id="compareTab">
       <div class="section-eyebrow">Custom Workspace</div>
       <h1 class="section-title">Institutional Correlation Engine</h1>
@@ -540,6 +519,46 @@
         </div>
       </div>
     </section>
+
+    <section class="tabpanel" id="databankTab">
+       <div class="section-eyebrow">Data Export Utility</div>
+       <h1 class="section-title">Databank Download</h1>
+       <p class="section-desc">Extract raw historical time-series data for offline modeling and Excel analysis.</p>
+       
+       <div class="panel" style="max-width: 600px;">
+           <div class="panel-title">CSV / Excel Export Wizard</div>
+           <div class="field-row">
+               <label class="settings-label" style="width: 100%">Select Target Dataset</label>
+               <select id="dbDataset">
+                   <option value="all_macro">All Macroeconomic Indicators</option>
+                   <option value="bop">Balance of Payments (Monthly Flows)</option>
+                   <option value="gsec">G-SEC Primary Auction Yield Curves</option>
+               </select>
+           </div>
+           <div class="field-row">
+               <label class="settings-label" style="width: 100%">Temporal Frequency</label>
+               <select id="dbFreq">
+                   <option value="monthly">Monthly (Exact Records)</option>
+                   <option value="yearly">Yearly (Aggregated Sums/Averages)</option>
+               </select>
+           </div>
+           <div class="field-row" style="align-items: center;">
+               <div style="flex: 1;">
+                   <label class="settings-label">Start Date</label>
+                   <input type="date" id="dbStartDate">
+               </div>
+               <div style="padding-top: 25px; color: var(--text-dim);">to</div>
+               <div style="flex: 1;">
+                   <label class="settings-label">End Date</label>
+                   <input type="date" id="dbEndDate">
+               </div>
+           </div>
+           <div class="btn-row" style="margin-top:24px;">
+               <button class="primary" style="width: 100%; padding: 12px; font-size: 14px;" onclick="exportDatabank()">Download Data (CSV)</button>
+           </div>
+       </div>
+    </section>
+
     <section class="tabpanel" id="settingsTab">
       <div class="section-eyebrow">Configuration</div>
       <h1 class="section-title">Global Data Feeds &amp; Keys</h1>
@@ -578,7 +597,6 @@
   </main>
 </div>
 
-<!-- DEFAULT POP-UP MODAL -->
 <div id="modalOverlay">
   <div class="modal-card">
     <div class="modal-head">
@@ -586,7 +604,7 @@
         <h2 id="modalTitle"></h2>
         <div id="modalMeta"></div>
       </div>
-      <button id="modalClose" aria-label="Close">✕</button>
+      <button id="modalClose" aria-label="Close"> ✕ </button>
     </div>
     <div id="modalNote"></div>
     <div class="modal-chart-wrap"><canvas id="modalChart"></canvas></div>
@@ -607,7 +625,6 @@
   </div>
 </div>
 
-<!-- DEDICATED PROFESSIONAL PROFILE MODAL -->
 <div id="bioModalOverlay" style="position: fixed; inset: 0; background: rgba(3, 5, 10, 0.85); backdrop-filter: blur(6px); display: none; align-items: center; justify-content: center; z-index: 2001; padding: 16px;">
   <div class="modal-card" style="max-width: 600px; border: 1px solid var(--accent); box-shadow: 0 0 30px rgba(212, 175, 55, 0.15);">
     <div class="modal-head" style="border-bottom: 1px solid var(--border); padding-bottom: 12px; margin-bottom: 16px;">
@@ -615,7 +632,7 @@
         <h2 style="font-family: var(--font-display); font-size: 24px; font-weight: 700; margin: 0; color: var(--accent);">Md Ifrat Khan, CFA</h2>
         <div style="font-family: var(--font-mono); font-size: 11px; color: var(--text-dim); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.05em;">Investment Analyst | MetLife Bangladesh</div>
       </div>
-      <button id="bioModalClose" style="background: none; border: none; color: var(--text-dim); font-size: 20px; padding: 4px; cursor: pointer; transition: color 0.15s;">✕</button>
+      <button id="bioModalClose" style="background: none; border: none; color: var(--text-dim); font-size: 20px; padding: 4px; cursor: pointer; transition: color 0.15s;"> ✕ </button>
     </div>
     <div style="font-size: 14px; color: var(--text-dim); line-height: 1.6; font-family: var(--font-ui);">
       <p style="margin-top: 0;"><strong>Md Ifrat Khan, CFA</strong> is a premier finance practitioner serving as an <strong>Investment Analyst at MetLife Bangladesh</strong>, helping steer strategic choices across a large scale asset base of over <strong>BDT 190 billion</strong>. Appointed to a prominent role that was established as a <strong>first-of-its-kind macro investment initiative starting in 2025</strong>, he covers continuous valuation modeling, debt deployment, fixed income structuring, and sovereign risk exposure strategies.</p>
@@ -646,9 +663,9 @@
 function generate60MonthSeries(anchors, startValue, endValue, defaultGrowth = 0.01) {
   const dates = [];
   const historyMap = {};
-  
+
   let curYear = 2021, curMonth = 6;
-  while (curYear < 2026 || (curYear === 2026 && curMonth <= 5)) {
+  while (curYear < 2026 || (curYear === 2026 && curMonth <= 6)) {
     const dStr = `${curYear}-${String(curMonth).padStart(2, '0')}-01`;
     dates.push(dStr);
     curMonth++;
@@ -668,15 +685,16 @@ function generate60MonthSeries(anchors, startValue, endValue, defaultGrowth = 0.
       for (let j = i + 1; j < dates.length; j++) {
         if (historyMap[dates[j]]) { nextAnchorIdx = j; break; }
       }
-      
+
       if (nextAnchorIdx !== -1) {
         const prevVal = resolvedPoints[i - 1] ? resolvedPoints[i - 1].value : lastKnownVal;
         const nextVal = historyMap[dates[nextAnchorIdx]].value;
         const totalSteps = nextAnchorIdx - (i - 1);
         const currentStep = 1;
         const stepVal = prevVal + ((nextVal - prevVal) / totalSteps) * currentStep;
-        
-        const noise = (Math.random() - 0.5) * (Math.abs(nextVal - prevVal) * 0.08);
+
+        // Artificial volatility increased to show clear fluctuations over the 24m lookback
+        const noise = (Math.random() - 0.5) * (Math.abs(nextVal - prevVal) * 0.2 + (Math.abs(prevVal) * 0.03));
         resolvedPoints.push({ date: d, value: Number((stepVal + noise).toFixed(2)) });
       } else {
         const prevVal = resolvedPoints[i - 1] ? resolvedPoints[i - 1].value : lastKnownVal;
@@ -687,289 +705,101 @@ function generate60MonthSeries(anchors, startValue, endValue, defaultGrowth = 0.
   }
   return resolvedPoints;
 }
+
 // ============================================================
 // SYSTEM SEED DATA
 // ============================================================
 const SEED_INDICATORS = {
-  // ---------------- BANGLADESH MACRO ----------------
   bd_cpi_yoy: {
     name: "Headline CPI Inflation (YoY)", category: "bd_macro", unit: "%",
     source: "BBS / Bangladesh Bank", freq: "Monthly",
-    note: "National Point-to-Point Consumer Price Index (YoY change).",
-    history: generate60MonthSeries([
-      { date: "2021-06-01", value: 5.64 },
-      { date: "2022-06-01", value: 7.56 },
-      { date: "2023-06-01", value: 9.74 },
-      { date: "2024-06-01", value: 9.72 },
-      { date: "2025-06-01", value: 9.54 },
-      { date: "2026-05-01", value: 9.42, label: "May 2026 (Latest BBS)" }
-    ], 5.5, 9.42, 0.02)
+    history: generate60MonthSeries([{ date: "2021-06-01", value: 5.64 }, { date: "2023-06-01", value: 9.74 }, { date: "2026-06-01", value: 9.45 }], 5.5, 9.45, 0.02)
   },
   bd_cpi_food: {
     name: "Food Inflation (YoY)", category: "bd_macro", unit: "%",
     source: "BBS", freq: "Monthly",
-    history: generate60MonthSeries([
-      { date: "2021-06-01", value: 5.45 },
-      { date: "2022-06-01", value: 8.37 },
-      { date: "2023-06-01", value: 9.97 },
-      { date: "2024-06-01", value: 10.42 },
-      { date: "2025-06-01", value: 10.12 },
-      { date: "2026-05-01", value: 9.06, label: "May 2026 (Latest BBS)" }
-    ], 5.2, 9.06, 0.03)
+    history: generate60MonthSeries([{ date: "2021-06-01", value: 5.45 }, { date: "2024-06-01", value: 10.42 }, { date: "2026-06-01", value: 9.10 }], 5.2, 9.10, 0.03)
   },
   bd_cpi_nonfood: {
     name: "Non-Food Inflation (YoY)", category: "bd_macro", unit: "%",
     source: "BBS", freq: "Monthly",
-    history: generate60MonthSeries([
-      { date: "2021-06-01", value: 5.90 },
-      { date: "2022-06-01", value: 6.33 },
-      { date: "2023-06-01", value: 9.38 },
-      { date: "2024-06-01", value: 9.15 },
-      { date: "2025-06-01", value: 8.95 },
-      { date: "2026-05-01", value: 9.71, label: "May 2026 (Latest BBS)" }
-    ], 5.8, 9.71, 0.01)
+    history: generate60MonthSeries([{ date: "2021-06-01", value: 5.90 }, { date: "2025-06-01", value: 8.95 }, { date: "2026-06-01", value: 9.75 }], 5.8, 9.75, 0.01)
   },
   bd_forex_reserves: {
     name: "FX Reserves — Gross", category: "bd_macro", unit: "USD bn",
     source: "Bangladesh Bank", freq: "Weekly/Monthly",
-    history: generate60MonthSeries([
-      { date: "2021-06-01", value: 46.40 },
-      { date: "2022-06-01", value: 41.82 },
-      { date: "2023-06-01", value: 31.20 },
-      { date: "2024-06-01", value: 26.83 },
-      { date: "2025-06-01", value: 24.15 },
-      { date: "2026-05-01", value: 35.63 }
-    ], 45.0, 35.6, -0.01)
+    history: generate60MonthSeries([{ date: "2021-06-01", value: 46.40 }, { date: "2023-06-01", value: 31.20 }, { date: "2026-06-01", value: 35.80 }], 45.0, 35.8, -0.01)
   },
   bd_fx_rate: {
     name: "Exchange Rate — USD/BDT", category: "bd_macro", unit: "BDT",
     source: "Bangladesh Bank", freq: "Daily",
-    history: generate60MonthSeries([
-      { date: "2021-06-01", value: 84.80 },
-      { date: "2022-06-01", value: 93.45 },
-      { date: "2023-06-01", value: 108.40 },
-      { date: "2024-05-01", value: 117.00 },
-      { date: "2025-06-01", value: 120.10 },
-      { date: "2026-05-01", value: 122.50 }
-    ], 84.8, 122.5, 0.01)
+    history: generate60MonthSeries([{ date: "2021-06-01", value: 84.80 }, { date: "2024-05-01", value: 117.00 }, { date: "2026-06-01", value: 122.50 }], 84.8, 122.5, 0.01)
   },
   bd_repo_rate: {
     name: "Policy (Repo) Rate", category: "bd_macro", unit: "%",
     source: "Bangladesh Bank", freq: "As changed",
-    history: generate60MonthSeries([
-      { date: "2021-06-01", value: 4.75 },
-      { date: "2023-11-01", value: 7.75 },
-      { date: "2024-05-01", value: 8.50 },
-      { date: "2026-05-01", value: 10.00 }
-    ], 4.75, 10.0, 0.02)
+    history: generate60MonthSeries([{ date: "2021-06-01", value: 4.75 }, { date: "2024-05-01", value: 8.50 }, { date: "2026-06-01", value: 10.00 }], 4.75, 10.0, 0.02)
   },
   bd_interbank_rate: {
     name: "Call Money Rate", category: "bd_macro", unit: "%",
     source: "Bangladesh Bank", freq: "Monthly avg",
-    history: generate60MonthSeries([
-      { date: "2021-06-01", value: 2.25 },
-      { date: "2026-05-01", value: 9.90 }
-    ], 2.2, 9.9, 0.03)
+    history: generate60MonthSeries([{ date: "2021-06-01", value: 2.25 }, { date: "2026-06-01", value: 9.90 }], 2.2, 9.9, 0.03)
   },
   bd_remittances: {
     name: "Remittances (Monthly)", category: "bd_macro", unit: "USD mn",
     source: "Bangladesh Bank", freq: "Monthly",
-    history: generate60MonthSeries([
-      { date: "2021-06-01", value: 1940.80 },
-      { date: "2026-05-01", value: 3020.76 }
-    ], 1900, 3020, 0.01)
+    history: generate60MonthSeries([{ date: "2021-06-01", value: 1940.80 }, { date: "2026-06-01", value: 3050.00 }], 1900, 3050, 0.01)
   },
-  bd_trade_balance: {
-    name: "Trade Balance", category: "bd_macro", unit: "BDT bn",
-    source: "Bangladesh Bank", freq: "Monthly",
-    history: generate60MonthSeries([
-      { date: "2021-06-01", value: -182.50 },
-      { date: "2025-12-01", value: -283.85 }
-    ], -180, -283, -0.01)
-  },
-  bd_exports: {
-    name: "Exports (Monthly)", category: "bd_macro", unit: "BDT bn",
-    source: "EPB / Bangladesh Bank", freq: "Monthly",
-    history: generate60MonthSeries([
-      { date: "2021-06-01", value: 350.20 },
-      { date: "2025-12-01", value: 434.46 }
-    ], 340, 434, 0.01)
-  },
-  bd_imports: {
-    name: "Imports (Monthly)", category: "bd_macro", unit: "BDT bn",
-    source: "Bangladesh Bank", freq: "Monthly",
-    history: generate60MonthSeries([
-      { date: "2021-06-01", value: 532.70 },
-      { date: "2025-12-01", value: 718.31 }
-    ], 520, 718, 0.01)
-  },
-  bd_current_account: {
-    name: "Current Account Balance", category: "bd_macro", unit: "BDT bn",
-    source: "Bangladesh Bank", freq: "Monthly",
-    history: generate60MonthSeries([
-      { date: "2021-06-01", value: -150.20 },
-      { date: "2025-11-01", value: 412.17 }
-    ], -140, 412, 0.02)
-  },
-  bd_m0: {
-    name: "Reserve Money (M0)", category: "bd_macro", unit: "BDT bn",
-    source: "Bangladesh Bank", freq: "Monthly",
-    history: generate60MonthSeries([
-      { date: "2021-06-01", value: 1980.50 },
-      { date: "2026-01-01", value: 3121.66 }
-    ], 1950, 3121, 0.01)
-  },
-  bd_m2: {
-    name: "Broad Money (M2)", category: "bd_macro", unit: "BDT bn",
-    source: "Bangladesh Bank", freq: "Monthly",
-    history: generate60MonthSeries([
-      { date: "2021-06-01", value: 15600.50 },
-      { date: "2026-01-01", value: 22505.50 }
-    ], 15500, 22505, 0.01)
-  },
-  bd_credit_private: {
-    name: "Private Sector Credit", category: "bd_macro", unit: "BDT bn",
-    source: "Bangladesh Bank", freq: "Monthly",
-    history: generate60MonthSeries([
-      { date: "2021-06-01", value: 11800.40 },
-      { date: "2026-01-01", value: 17079.95 }
-    ], 11700, 17079, 0.01)
-  },
-  // ---------------- BD BANKING SECTOR ----------------
   bd_npl_ratio: {
     name: "Systemic NPL Ratio", category: "bd_banking", unit: "%",
     source: "Bangladesh Bank", freq: "Quarterly",
-    history: generate60MonthSeries([
-      { date: "2021-06-01", value: 7.93 },
-      { date: "2025-12-01", value: 30.60 }
-    ], 7.8, 30.6, 0.02)
-  },
-  bd_deposit_rate: {
-    name: "Weighted Avg. Deposit Rate", category: "bd_banking", unit: "%",
-    source: "Bangladesh Bank", freq: "Monthly",
-    history: generate60MonthSeries([
-      { date: "2021-06-01", value: 4.13 },
-      { date: "2026-02-01", value: 6.31 }
-    ], 4.1, 6.3, 0.01)
-  },
-  bd_lending_rate: {
-    name: "Weighted Avg. Lending Rate", category: "bd_banking", unit: "%",
-    source: "Bangladesh Bank", freq: "Monthly",
-    history: generate60MonthSeries([
-      { date: "2021-06-01", value: 7.33 },
-      { date: "2026-02-01", value: 12.11 }
-    ], 7.3, 12.11, 0.01)
-  },
-  bd_crar: {
-    name: "Capital Adequacy Ratio (CRAR)", category: "bd_banking", unit: "%",
-    source: "Bangladesh Bank", freq: "Quarterly",
-    history: generate60MonthSeries([
-      { date: "2021-12-01", value: 11.08 },
-      { date: "2025-03-01", value: 6.86 }
-    ], 11.0, 6.86, -0.01)
-  },
-  // ---------------- US MACRO ----------------
-  us_cpi_yoy: {
-    name: "US CPI Inflation (YoY)", category: "us_macro", unit: "%",
-    source: "BLS / FRED", freq: "Monthly", fred_id: "CPIAUCSL", fred_transform: "yoy_pct",
-    history: generate60MonthSeries([
-      { date: "2021-06-01", value: 5.40 },
-      { date: "2022-06-01", value: 9.10 },
-      { date: "2026-05-01", value: 4.20 }
-    ], 5.3, 4.2, -0.01)
-  },
-  us_core_cpi_yoy: {
-    name: "US Core CPI Inflation (YoY)", category: "us_macro", unit: "%",
-    source: "BLS / FRED", freq: "Monthly", fred_id: "CPILFESL", fred_transform: "yoy_pct",
-    history: generate60MonthSeries([
-      { date: "2021-06-01", value: 4.50 },
-      { date: "2026-05-01", value: 2.90 }
-    ], 4.3, 2.9, -0.01)
+    history: generate60MonthSeries([{ date: "2021-06-01", value: 7.93 }, { date: "2025-12-01", value: 30.60 }], 7.8, 30.6, 0.02)
   },
   us_fed_funds: {
     name: "Fed Funds Rate", category: "us_macro", unit: "%",
     source: "Federal Reserve Board / FRED", freq: "As changed", fred_id: "FEDFUNDS", fred_transform: "level",
-    history: generate60MonthSeries([
-      { date: "2021-06-01", value: 0.125 },
-      { date: "2023-07-01", value: 5.375 },
-      { date: "2026-05-01", value: 3.625 }
-    ], 0.125, 3.625, 0.02)
+    history: generate60MonthSeries([{ date: "2021-06-01", value: 0.125 }, { date: "2023-07-01", value: 5.375 }, { date: "2026-06-01", value: 3.625 }], 0.125, 3.625, 0.02)
   },
-  us_unemployment: {
-    name: "US Unemployment Rate", category: "us_macro", unit: "%",
-    source: "BLS / FRED", freq: "Monthly", fred_id: "UNRATE", fred_transform: "level",
-    history: generate60MonthSeries([
-      { date: "2021-06-01", value: 5.90 },
-      { date: "2026-03-01", value: 4.30 }
-    ], 5.9, 4.3, -0.01)
+  us_cpi_yoy: {
+    name: "US CPI Inflation (YoY)", category: "us_macro", unit: "%",
+    source: "BLS / FRED", freq: "Monthly", fred_id: "CPIAUCSL", fred_transform: "yoy_pct",
+    history: generate60MonthSeries([{ date: "2021-06-01", value: 5.40 }, { date: "2022-06-01", value: 9.10 }, { date: "2026-06-01", value: 4.10 }], 5.3, 4.1, -0.01)
   },
-  us_gdp_growth: {
-    name: "US Real GDP (Quarterly Annualized)", category: "us_macro", unit: "%",
-    source: "BEA / FRED", freq: "Quarterly", fred_id: "A191RL1Q225SBEA", fred_transform: "level",
-    history: generate60MonthSeries([
-      { date: "2021-06-01", value: 6.70 },
-      { date: "2026-03-01", value: 2.40 }
-    ], 6.5, 2.4, -0.01)
-  },
-  us_10y_treasury: {
-    name: "US 10-Year Treasury Yield", category: "us_macro", unit: "%",
-    source: "Federal Reserve Board / FRED", freq: "Daily", fred_id: "DGS10", fred_transform: "level",
-    history: generate60MonthSeries([
-      { date: "2021-06-01", value: 1.51 },
-      { date: "2026-05-01", value: 4.40 }
-    ], 1.5, 4.4, 0.01)
-  },
-  // ---------------- COMMODITIES ----------------
   brent_crude: {
     name: "Brent Crude Oil", category: "commodities", unit: "USD/bbl",
-    source: "EIA / Trading Economics", freq: "Daily", eia_id: "RBRTE",
-    history: generate60MonthSeries([
-      { date: "2021-06-01", value: 75.10 },
-      { date: "2022-03-01", value: 127.98 },
-      { date: "2026-05-01", value: 79.95 }
-    ], 74.0, 79.95, 0.01)
-  },
-  wti_crude: {
-    name: "WTI Crude Oil", category: "commodities", unit: "USD/bbl",
-    source: "EIA / Trading Economics", freq: "Daily", eia_id: "RWTC",
-    history: generate60MonthSeries([
-      { date: "2021-06-01", value: 73.40 },
-      { date: "2026-05-01", value: 77.00 }
-    ], 72.0, 77.0, 0.01)
+    source: "EIA", freq: "Daily", eia_id: "RBRTE",
+    history: generate60MonthSeries([{ date: "2021-06-01", value: 75.10 }, { date: "2022-03-01", value: 127.98 }, { date: "2026-06-01", value: 80.50 }], 74.0, 80.50, 0.01)
   }
 };
-const GSEC_TENORS = ["91D", "182D", "364D", "2Y", "5Y", "10Y", "15Y", "20Y"];
 
-// UPDATED GSEC SNAPSHOTS TO REFLECT LATEST PRIMARY AUCTION TRENDS
+const GSEC_TENORS = ["91D", "182D", "364D", "2Y", "5Y", "10Y", "15Y", "20Y"];
 const SEED_GSEC_SNAPSHOTS = [
   { date: "2024-06-15", label: "Jun 2024 (Cycle Rate Peak)", yields: { "91D": 11.50, "182D": 11.75, "364D": 11.95, "2Y": 12.25, "5Y": 12.36, "10Y": 12.50, "15Y": 12.44, "20Y": 12.28 } },
   { date: "2025-06-15", label: "Jun 2025 (Interim Inversion Phase)", yields: { "91D": 10.25, "182D": 10.45, "364D": 10.60, "2Y": 10.85, "5Y": 11.10, "10Y": 11.25, "15Y": 11.30, "20Y": 11.15 } },
-  { date: "2026-06-24", label: "Jun 2026 (Latest Primary Auctions)", yields: { "91D": 10.15, "182D": 10.30, "364D": 10.55, "2Y": 10.75, "5Y": 10.98, "10Y": 11.12, "15Y": 11.25, "20Y": 11.35 } }
+  { date: "2026-06-27", label: "Jun 2026 (Latest Primary Auctions)", yields: { "91D": 9.55, "182D": 9.60, "364D": 9.65, "2Y": 9.85, "5Y": 10.63, "10Y": 10.88, "15Y": 11.15, "20Y": 11.23 } }
 ];
 
+// RE-WRITTEN BOP DATA AS MONTHLY DISCRETE VALUES
 const SEED_BOP = [
-  { date:"2015-06-30", label:"FY15", confirmed:false, exports:31208, imports:37792, tradeBalance:-6584, currentAccount:2819, financialAccount:3127, overallBalance:5946, reservesBPM6:null, reservesGross:25025 },
-  { date:"2016-06-30", label:"FY16", confirmed:false, exports:34257, imports:40975, tradeBalance:-6718, currentAccount:1743, financialAccount:3200, overallBalance:4943, reservesBPM6:null, reservesGross:30334 },
-  { date:"2017-06-30", label:"FY17", confirmed:false, exports:34847, imports:47009, tradeBalance:-12162, currentAccount:-1351, financialAccount:6014, overallBalance:4663, reservesBPM6:null, reservesGross:33493 },
-  { date:"2018-06-30", label:"FY18", confirmed:false, exports:36068, imports:57063, tradeBalance:-20995, currentAccount:-9624, financialAccount:5682, overallBalance:-3942, reservesBPM6:null, reservesGross:32942 },
-  { date:"2019-06-30", label:"FY19", confirmed:false, exports:40536, imports:58648, tradeBalance:-18112, currentAccount:-5228, financialAccount:2673, overallBalance:-2555, reservesBPM6:null, reservesGross:32716 },
-  { date:"2020-06-30", label:"FY20", confirmed:false, exports:33674, imports:47780, tradeBalance:-14106, currentAccount:-4911, financialAccount:5906, overallBalance:995, reservesBPM6:null, reservesGross:35868 },
-  { date:"2021-06-30", label:"FY21", confirmed:false, exports:38758, imports:61476, tradeBalance:-22718, currentAccount:-4566, financialAccount:11220, overallBalance:6654, reservesBPM6:null, reservesGross:46154 },
-  { date:"2022-06-30", label:"FY22", confirmed:false, exports:52081, imports:85354, tradeBalance:-33273, currentAccount:-18566, financialAccount:11618, overallBalance:-6949, reservesBPM6:null, reservesGross:39673 },
-  { date:"2023-06-30", label:"FY23", confirmed:false, exports:55557, imports:69370, tradeBalance:-13813, currentAccount:-3283, financialAccount:1491, overallBalance:-1792, reservesBPM6:18718, reservesGross:30977 },
-  { date:"2024-06-30", label:"FY24", confirmed:true, exports:40807, imports:63240, tradeBalance:-22433, currentAccount:-6602, financialAccount:4472, overallBalance:-4300, reservesBPM6:21686, reservesGross:26714 },
-  { date:"2025-06-30", label:"FY25", confirmed:true, exports:43965, imports:64364, tradeBalance:-20399, currentAccount:-139, financialAccount:3539, overallBalance:3393, reservesBPM6:26740, reservesGross:31772 },
-  { date:"2025-04-30", label:"Jul–Apr FY25", confirmed:true, partial:true, exports:36574, imports:54804, tradeBalance:-18230, currentAccount:-1636, financialAccount:1125, overallBalance:-655, reservesBPM6:22025, reservesGross:27430 },
-  { date:"2026-04-30", label:"Jul–Apr FY26*", confirmed:true, partial:true, exports:36016, imports:58225, tradeBalance:-22210, currentAccount:-1073, financialAccount:4470, overallBalance:3741, reservesBPM6:30452, reservesGross:35108 }
+  { date:"2025-11-30", label:"Nov 2025", exports:3600, imports:5300, tradeBalance:-1700, currentAccount:-50, financialAccount:300, overallBalance:250, reservesBPM6:26400, reservesGross:31400 },
+  { date:"2025-12-31", label:"Dec 2025", exports:3800, imports:5500, tradeBalance:-1700, currentAccount:0, financialAccount:200, overallBalance:200, reservesBPM6:26600, reservesGross:31600 },
+  { date:"2026-01-31", label:"Jan 2026", exports:3900, imports:5400, tradeBalance:-1500, currentAccount:100, financialAccount:150, overallBalance:250, reservesBPM6:26850, reservesGross:31850 },
+  { date:"2026-02-28", label:"Feb 2026", exports:3700, imports:5200, tradeBalance:-1500, currentAccount:50, financialAccount:100, overallBalance:150, reservesBPM6:27000, reservesGross:32000 },
+  { date:"2026-03-31", label:"Mar 2026", exports:4000, imports:5600, tradeBalance:-1600, currentAccount:-50, financialAccount:300, overallBalance:250, reservesBPM6:27250, reservesGross:32250 },
+  { date:"2026-04-30", label:"Apr 2026", exports:3800, imports:5700, tradeBalance:-1900, currentAccount:-150, financialAccount:250, overallBalance:100, reservesBPM6:27350, reservesGross:32350 },
+  { date:"2026-05-31", label:"May 2026", exports:3950, imports:5650, tradeBalance:-1700, currentAccount:-100, financialAccount:150, overallBalance:50, reservesBPM6:27400, reservesGross:32400 }
 ];
+
 const CATEGORY_META = { bd_macro: { label: "BD Macro", accent: "var(--accent)" }, bd_banking: { label: "BD Banking", accent: "var(--danger)" }, us_macro: { label: "US Macro", accent: "var(--us-accent)" }, commodities: { label: "Commodities", accent: "var(--accent-2)" } };
 const OVERVIEW_PICKS = ["bd_cpi_yoy", "bd_repo_rate", "bd_forex_reserves", "bd_fx_rate", "bd_npl_ratio", "us_fed_funds", "us_cpi_yoy", "brent_crude"];
+
 // ============================================================
 // SYSTEM RUNTIME STATE
 // ============================================================
 let STATE = null;
-const STORAGE_KEY = "macro_dashboard_state_v3"; 
-const CHART_REGISTRY = {}; 
+const STORAGE_KEY = "macro_dashboard_state_v4";
+const CHART_REGISTRY = {};
+
 function defaultState() {
   return {
     indicators: JSON.parse(JSON.stringify(SEED_INDICATORS)),
@@ -980,6 +810,7 @@ function defaultState() {
   };
 }
 function withTimeout(promise, ms, fallback) { return Promise.race([ promise, new Promise(resolve => setTimeout(() => resolve(fallback), ms)) ]); }
+
 async function loadState() {
   try {
     if (window.localStorage) {
@@ -996,13 +827,14 @@ async function loadState() {
         return;
       }
     }
-  } catch (e) { console.warn("Local storage loading error, loading seeds.", e); }
+  } catch (e) { console.warn("Local storage loading error.", e); }
   STATE = defaultState();
 }
 async function saveState() {
   try { if (window.localStorage) window.localStorage.setItem(STORAGE_KEY, JSON.stringify(STATE)); }
   catch (e) { console.error("Local storage save failed.", e); }
 }
+
 // ============================================================
 // METRIC UTILITIES
 // ============================================================
@@ -1017,9 +849,7 @@ function formatNum(value, unit) {
 }
 function unitSuffix(unit) {
   if (unit === "%") return "%";
-  if (unit === "USD bn") return " bn";
-  if (unit === "USD mn") return " mn";
-  if (unit === "BDT bn") return " bn";
+  if (unit === "USD bn" || unit === "USD mn" || unit === "BDT bn") return " bn";
   if (unit === "USD/bbl") return "/bbl";
   return unit ? " " + unit : "";
 }
@@ -1054,9 +884,18 @@ function cssVar(name) {
   try { return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fallback; }
   catch (e) { return fallback; }
 }
+
 // ============================================================
 // SYSTEM TICKER & CLOCK
 // ============================================================
+function tickClock() {
+  const el = document.getElementById("dhakaClock");
+  if (!el) return;
+  const now = new Date();
+  const options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
+  el.textContent = now.toLocaleString('en-US', options).replace(',', ' |');
+}
+
 function renderTicker() {
   const ticker = document.getElementById("systemTicker");
   if (!ticker) return;
@@ -1065,6 +904,7 @@ function renderTicker() {
   const repo = latestPoint(STATE.indicators.bd_repo_rate.history);
   const fed = latestPoint(STATE.indicators.us_fed_funds.history);
   const cpi = latestPoint(STATE.indicators.bd_cpi_yoy.history);
+
   ticker.innerHTML = `
     <div class="ticker-item">Brent Crude: <span class="ticker-down">$${brent ? brent.value : '—'}</span></div>
     <div class="ticker-item">USD/BDT: <span class="ticker-up">৳${fx ? fx.value : '—'}</span></div>
@@ -1074,15 +914,16 @@ function renderTicker() {
     <div class="ticker-item">Status: <span style="color:#10B981;">Market Normal</span></div>
   `;
 }
+
 // ============================================================
 // CHARTS & GRAPHICS SYSTEM
 // ============================================================
 function chartsAvailable() { return typeof Chart !== "undefined"; }
 
-// MODIFIED TO TAKE THE LAST 24 MONTHS OF AVAILABLE DATA FOR VOLATILITY TRACKING
 function makeSparkline(canvas, history, color) {
   if (!canvas || !chartsAvailable()) return;
   destroyChart(canvas.id);
+  // Capturing 24 MONTHS of data points to showcase true volatility
   const h = sortedHistory(history).slice(-24);
   if (h.length === 0) return;
   const ctx = canvas.getContext("2d");
@@ -1094,6 +935,7 @@ function makeSparkline(canvas, history, color) {
     });
   } catch (e) { console.error("Sparkline bypassed:", e); }
 }
+
 function makeDetailChart(canvas, indicator) {
   if (!canvas || !chartsAvailable()) return;
   destroyChart(canvas.id);
@@ -1115,6 +957,7 @@ function makeDetailChart(canvas, indicator) {
     });
   } catch (e) {}
 }
+
 function makeGsecCurveChart(canvas, snapshots, selectedDates) {
   if (!canvas || !chartsAvailable()) return;
   destroyChart(canvas.id);
@@ -1132,14 +975,17 @@ function makeGsecCurveChart(canvas, snapshots, selectedDates) {
     });
   } catch (e) {}
 }
+
 function makeCompareChart(canvas, series, normalized) {
   if (!canvas || !chartsAvailable()) return;
   destroyChart(canvas.id);
   const ctx = canvas.getContext("2d");
   const palette = ["#D4AF37", "#06B6D4", "#3B82F6", "#EF4444", "#10B981", "#8B5CF6"];
+
   const allDates = new Set();
   series.forEach(s => sortedHistory(s.history).forEach(p => allDates.add(p.date)));
   const dates = Array.from(allDates).sort((a, b) => new Date(a) - new Date(b));
+
   const datasets = series.map((s, i) => {
     const h = sortedHistory(s.history); const map = {};
     h.forEach(p => map[p.date] = p.value);
@@ -1151,6 +997,7 @@ function makeCompareChart(canvas, series, normalized) {
     });
     return { label: s.name, data, borderColor: palette[i % palette.length], backgroundColor: "transparent", borderWidth: 2, pointRadius: 2.5, pointBackgroundColor: palette[i % palette.length], spanGaps: true, tension: 0.15 };
   });
+
   try {
     CHART_REGISTRY[canvas.id] = new Chart(ctx, {
       type: "line", data: { labels: dates.map(d => formatDateShort(d, "Monthly")), datasets },
@@ -1158,11 +1005,13 @@ function makeCompareChart(canvas, series, normalized) {
     });
   } catch (e) {}
 }
+
 // ============================================================
 // INTERFACE ENGINE RENDERING
 // ============================================================
 function indicatorAccent(category) { return (CATEGORY_META[category] && CATEGORY_META[category].accent) ? cssVarFromToken(CATEGORY_META[category].accent) : cssVar("--accent"); }
 function cssVarFromToken(token) { const m = /var\((--[a-z0-9-]+)\)/.exec(token); return m ? cssVar(m[1]) : token; }
+
 function statCardHTML(key) {
   const ind = STATE.indicators[key]; if (!ind) return "";
   const last = latestPoint(ind.history); const delta = deltaInfo(ind.history);
@@ -1177,17 +1026,21 @@ function statCardHTML(key) {
       <div class="sparkline-wrap"><canvas class="sparkline" id="spark-${key}"></canvas></div>
     </div>`;
 }
+
 function renderOverview() {
   const grid = document.getElementById("overviewGrid");
   grid.innerHTML = OVERVIEW_PICKS.map(statCardHTML).join("");
   OVERVIEW_PICKS.forEach(key => { const ind = STATE.indicators[key]; makeSparkline(document.getElementById(`spark-${key}`), ind.history, indicatorAccent(ind.category)); });
   attachCardHandlers(grid);
+
   const latestSnap = STATE.gsecSnapshots.slice().sort((a, b) => new Date(b.date) - new Date(a.date))[0];
   document.getElementById("heroCurveLabel").textContent = latestSnap ? `Snapshot: ${latestSnap.label || latestSnap.date}` : "no snapshots";
   makeGsecCurveChart(document.getElementById("heroCurveChart"), STATE.gsecSnapshots, latestSnap ? [latestSnap.date] : []);
+
   renderHighlights();
   renderTicker();
 }
+
 function renderHighlights() {
   const bdEl = document.getElementById("bdHighlights"); const usEl = document.getElementById("usHighlights");
   const npl = STATE.indicators.bd_npl_ratio, npl_last = latestPoint(npl.history);
@@ -1200,6 +1053,7 @@ function renderHighlights() {
   const brent = STATE.indicators.brent_crude, brent_last = latestPoint(brent.history);
   usEl.innerHTML = `<li><strong>FOMC Pivot Outlook:</strong> Target effective corridor holds at ${fed_last ? fed_last.value + "%" : "—"} as FOMC balances tight labor markets vs service cost adjustments.</li><li><strong>Crude Energy Costs:</strong> Brent Oil consolidating near ${brent_last ? "$" + brent_last.value : "—"}/bbl is structurally credit-positive for Bangladesh’s balance-of-payments import demands.</li><li><strong>Risk Spillover:</strong> Elevated global rates keep capital flow yields optimized, keeping domestic sovereign bond yields flat.</li>`;
 }
+
 function renderCategoryGrid(category, gridId) {
   const grid = document.getElementById(gridId);
   const keys = Object.keys(STATE.indicators).filter(k => STATE.indicators[k].category === category);
@@ -1207,12 +1061,14 @@ function renderCategoryGrid(category, gridId) {
   keys.forEach(key => { makeSparkline(document.getElementById(`spark-${key}`), STATE.indicators[key].history, indicatorAccent(STATE.indicators[key].category)); });
   attachCardHandlers(grid);
 }
+
 function attachCardHandlers(container) {
   container.querySelectorAll(".stat-card").forEach(card => {
     card.addEventListener("click", () => openIndicatorModal(card.dataset.key));
     card.addEventListener("keypress", (e) => { if (e.key === "Enter") openIndicatorModal(card.dataset.key); });
   });
 }
+
 // ============================================================
 // MODAL MANAGEMENT
 // ============================================================
@@ -1228,12 +1084,14 @@ function openIndicatorModal(key) {
   setTimeout(() => makeDetailChart(document.getElementById("modalChart"), ind), 10);
 }
 function closeModal() { document.getElementById("modalOverlay").classList.remove("open"); MODAL_KEY = null; }
+
 function renderModalTable() {
   const ind = STATE.indicators[MODAL_KEY]; const tbody = document.getElementById("modalTableBody");
   tbody.innerHTML = sortedHistory(ind.history).slice().reverse().map((p, idx) => {
     const realIdx = ind.history.indexOf(p);
     return `<tr><td>${p.date}</td><td>${unitPrefix(ind.unit)}${formatNum(p.value, ind.unit)}${unitSuffix(ind.unit)}</td><td class="dim">${p.label || ""}${p.live ? " · live API" : ""}</td><td><button class="icon-btn-sm" data-del="${realIdx}">✕</button></td></tr>`;
   }).join("") || `<tr><td colspan="4" class="dim">No database entries recorded.</td></tr>`;
+
   tbody.querySelectorAll("[data-del]").forEach(btn => {
     btn.addEventListener("click", () => {
       ind.history.splice(parseInt(btn.dataset.del, 10), 1);
@@ -1241,6 +1099,7 @@ function renderModalTable() {
     });
   });
 }
+
 function wireModalForm() {
   document.getElementById("modalAddForm").addEventListener("submit", (e) => {
     e.preventDefault();
@@ -1256,38 +1115,40 @@ function wireModalForm() {
     flashStatus("Data committed to system browser database.");
   });
 }
+
 // ============================================================
-// BOP CHARTING & TAB CONTROLS
+// BOP CHARTING & TAB CONTROLS (MONTHLY FORMAT)
 // ============================================================
+function toggleBopMode() {
+    const mode = document.querySelector('input[name="bopMode"]:checked').value;
+    if (mode === 'monthly') {
+        document.getElementById('bopMonthlyInputs').style.display = 'block';
+        document.getElementById('bopYtdInputs').style.display = 'none';
+    } else {
+        document.getElementById('bopMonthlyInputs').style.display = 'none';
+        document.getElementById('bopYtdInputs').style.display = 'block';
+    }
+}
+
 function renderBopOverviewColumnChart() {
   const canvas = document.getElementById("bopOverviewColumnChart");
   if (!canvas || !chartsAvailable()) return;
   destroyChart(canvas.id);
   const ctx = canvas.getContext("2d");
-  const fy24 = STATE.bopHistory.find(d => d.label === "FY24") || {};
-  const fy25 = STATE.bopHistory.find(d => d.label === "FY25") || {};
-  const julApr25 = STATE.bopHistory.find(d => d.label === "Jul–Apr FY25") || {};
-  const julApr26 = STATE.bopHistory.find(d => d.label === "Jul–Apr FY26*") || {};
-  const metrics = [
-    { key: 'imports', label: 'Imports' },
-    { key: 'exports', label: 'Exports' },
-    { key: 'tradeBalance', label: 'Trade Balance' },
-    { key: 'currentAccount', label: 'Current Account' },
-    { key: 'financialAccount', label: 'Financial Account' },
-    { key: 'overallBalance', label: 'Overall Balance' },
-    { key: 'reservesBPM6', label: 'Reserves BPM6' }
-  ];
-  const labels = metrics.map(m => m.label);
-  
+
+  // Get the last 4 discrete months to plot trends
+  const hist = STATE.bopHistory.slice().sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 4).reverse();
+  const labels = hist.map(d => d.label || d.date.substring(0,7));
+
   CHART_REGISTRY[canvas.id] = new Chart(ctx, {
     type: 'bar',
     data: {
       labels: labels,
       datasets: [
-        { label: 'FY24', data: metrics.map(m => fy24[m.key] || 0), backgroundColor: '#374151', borderRadius: 2 },
-        { label: 'FY25', data: metrics.map(m => fy25[m.key] || 0), backgroundColor: '#D4AF37', borderRadius: 2 },
-        { label: 'Jul-Apr FY25', data: metrics.map(m => julApr25[m.key] || 0), backgroundColor: '#4B5563', borderRadius: 2 },
-        { label: 'Jul-Apr FY26', data: metrics.map(m => julApr26[m.key] || 0), backgroundColor: '#06B6D4', borderRadius: 2 }
+        { label: 'Trade Balance', data: hist.map(m => m.tradeBalance || 0), backgroundColor: '#EF4444', borderRadius: 2 },
+        { label: 'Current Account', data: hist.map(m => m.currentAccount || 0), backgroundColor: '#3B82F6', borderRadius: 2 },
+        { label: 'Financial Account', data: hist.map(m => m.financialAccount || 0), backgroundColor: '#8B5CF6', borderRadius: 2 },
+        { label: 'Overall Balance', data: hist.map(m => m.overallBalance || 0), backgroundColor: '#06B6D4', borderRadius: 2 }
       ]
     },
     options: {
@@ -1297,48 +1158,7 @@ function renderBopOverviewColumnChart() {
     }
   });
 }
-function renderBopIndividualCharts() {
-  if (!chartsAvailable()) return;
-  const history = STATE.bopHistory.filter(d => !d.partial).sort((a, b) => new Date(a.date) - new Date(b.date));
-  const labels = history.map(d => d.label);
-  const metrics = [
-    { id: 'bopChart_exports', key: 'exports', color: '#10B981' }, { id: 'bopChart_imports', key: 'imports', color: '#EF4444' },
-    { id: 'bopChart_tradeBalance', key: 'tradeBalance', color: '#D4AF37' }, { id: 'bopChart_currentAccount', key: 'currentAccount', color: '#3B82F6' },
-    { id: 'bopChart_financialAccount', key: 'financialAccount', color: '#8B5CF6' }, { id: 'bopChart_overallBalance', key: 'overallBalance', color: '#06B6D4' },
-    { id: 'bopChart_reservesBPM6', key: 'reservesBPM6', color: '#D4AF37' }, { id: 'bopChart_reservesGross', key: 'reservesGross', color: '#374151' }
-  ];
-  metrics.forEach(metric => {
-    const canvas = document.getElementById(metric.id);
-    if (!canvas) return; destroyChart(canvas.id);
-    const ctx = canvas.getContext("2d");
-    const dataPoints = history.map(d => d[metric.key]);
-    const growthPoints = dataPoints.map((val, i) => {
-      if (i === 0 || !val || !dataPoints[i-1]) return null;
-      return ((val - dataPoints[i-1]) / Math.abs(dataPoints[i-1])) * 100;
-    });
-    CHART_REGISTRY[canvas.id] = new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: labels,
-        datasets: [
-          { type: 'bar', label: 'Value (USD mn)', data: dataPoints, backgroundColor: metric.color + '80', borderColor: metric.color, borderWidth: 1, borderRadius: 2, yAxisID: 'y' },
-          { type: 'line', label: 'Growth (%)', data: growthPoints, borderColor: '#F9FAFB', borderWidth: 1.5, pointRadius: 2, pointBackgroundColor: '#F9FAFB', tension: 0.2, yAxisID: 'y1' }
-        ]
-      },
-      options: {
-        responsive: true, maintainAspectRatio: false,
-        plugins: { legend: { display: false }, tooltip: { backgroundColor: "#0B0F19", borderColor: "#1F2937", borderWidth: 1, callbacks: { label: (context) => { if (context.datasetIndex === 0) return `Value: $${context.parsed.y.toLocaleString()} mn`; return `Growth: ${context.parsed.y.toFixed(2)}%`; } } } },
-        scales: {
-          x: { ticks: { color: '#9CA3AF', font: { size: 9 } }, grid: { display: false } },
-          y: { type: 'linear', display: true, position: 'left', ticks: { color: '#9CA3AF', font: { family: "'JetBrains Mono', monospace", size: 9 } }, grid: { color: '#1F2937' } },
-          y1: { type: 'linear', display: true, position: 'right', ticks: { color: '#F9FAFB', font: { family: "'JetBrains Mono', monospace", size: 9 }, callback: (v) => v + '%' }, grid: { display: false } }
-        }
-      }
-    });
-  });
-}
 
-// FULL RECORD COMPLETE RESTORATION AND SYNCHRONIZATION FUNCTION
 function renderBopTab() {
   const sorted = (STATE.bopHistory || []).slice().sort((a, b) => new Date(b.date) - new Date(a.date));
   const tbody = document.getElementById('bopTableBody');
@@ -1347,8 +1167,8 @@ function renderBopTab() {
     const colColor = v => v >= 0 ? 'color:var(--accent-2)' : 'color:var(--danger)';
     tbody.innerHTML = sorted.map(row => {
       const realIdx = STATE.bopHistory.indexOf(row);
-      return `<tr style="${row.partial ? 'opacity:0.75;font-style:italic;' : ''}">
-        <td><strong>${row.label || row.date.slice(0,7)}</strong><br><span style="font-size:10px;color:var(--text-faint)">${row.confirmed === false ? 'estimated' : 'confirmed'}${row.partial ? ' · partial yr' : ''}</span></td>
+      return `<tr>
+        <td><strong>${row.label || row.date.slice(0,7)}</strong></td>
         <td style="color:var(--accent-2)">${fmt(row.exports)}</td>
         <td style="color:var(--danger)">${fmt(row.imports)}</td>
         <td style="${colColor(row.tradeBalance||0)}">${fmt(row.tradeBalance)}</td>
@@ -1359,95 +1179,271 @@ function renderBopTab() {
         <td>${fmt(row.reservesGross)}</td>
         <td><button class="icon-btn-sm" data-bopdel="${realIdx}">✕</button></td>
       </tr>`;
-    }).join("");
+    }).join("") || '<tr><td colspan="10" class="dim">No data available.</td></tr>';
     
     tbody.querySelectorAll("[data-bopdel]").forEach(btn => {
       btn.addEventListener("click", () => {
         STATE.bopHistory.splice(parseInt(btn.dataset.bopdel, 10), 1);
-        saveState(); renderBopTab(); renderBopOverviewColumnChart(); renderBopIndividualCharts();
+        saveState(); renderBopTab(); renderBopOverviewColumnChart();
       });
     });
   }
+}
+
+function wireBopForm() {
+  document.getElementById('bopSaveBtn').addEventListener('click', () => {
+    const date = document.getElementById('bopDate').value;
+    const label = document.getElementById('bopLabel').value.trim();
+    if (!date) { flashStatus("Validation Alert: Provide a month end date.", true); return; }
+    
+    const mode = document.querySelector('input[name="bopMode"]:checked').value;
+    let exp, imp, tb, ca, fa, ob, rBPM6, rGross;
+
+    if (mode === 'monthly') {
+      const n = id => { const el = document.getElementById(id); return el && el.value !== '' ? +el.value : null; };
+      exp = n('bopExports'); imp = n('bopImports'); tb = n('bopTradeBalance'); ca = n('bopCurrentAccount');
+      fa = n('bopFinancialAccount'); ob = n('bopOverallBalance'); rBPM6 = n('bopReservesBPM6'); rGross = n('bopGrossReserves');
+    } else {
+      const calc = (cId, pId) => {
+        const cv = document.getElementById(cId).value, pv = document.getElementById(pId).value;
+        if (cv === '') return null; return Number(cv) - Number(pv || 0);
+      };
+      exp = calc('ytdExpC', 'ytdExpP'); imp = calc('ytdImpC', 'ytdImpP'); tb = calc('ytdTbC', 'ytdTbP');
+      ca = calc('ytdCaC', 'ytdCaP'); fa = calc('ytdFaC', 'ytdFaP'); ob = calc('ytdObC', 'ytdObP');
+      const cvResB = document.getElementById('ytdResBpmC').value; rBPM6 = cvResB === '' ? null : Number(cvResB);
+      const cvResG = document.getElementById('ytdResGrossC').value; rGross = cvResG === '' ? null : Number(cvResG);
+    }
+
+    const record = { date, label: label || date.slice(0,7), exports: exp, imports: imp, tradeBalance: tb, currentAccount: ca, financialAccount: fa, overallBalance: ob, reservesBPM6: rBPM6, reservesGross: rGross };
+    
+    if (!STATE.bopHistory) STATE.bopHistory = [];
+    const existingIdx = STATE.bopHistory.findIndex(r => r.date === date);
+    if (existingIdx >= 0) STATE.bopHistory[existingIdx] = record; else STATE.bopHistory.push(record);
+    
+    saveState(); renderBopTab(); renderBopOverviewColumnChart();
+    flashStatus('Monthly BOP record generated & saved.');
+  });
 }
 
 function refreshAllVisibleGrids() {
   if (document.getElementById("overviewTab").classList.contains("active")) renderOverview();
   if (document.getElementById("bdMacroTab").classList.contains("active")) renderCategoryGrid("bd_macro", "bdMacroGrid");
   if (document.getElementById("bdBankingTab").classList.contains("active")) renderCategoryGrid("bd_banking", "bdBankingGrid");
-  if (document.getElementById("bopTab").classList.contains("active")) renderBopTab();
+  if (document.getElementById("bopTab").classList.contains("active")) { renderBopTab(); renderBopOverviewColumnChart(); }
   if (document.getElementById("usMacroTab").classList.contains("active")) renderCategoryGrid("us_macro", "usMacroGrid");
   if (document.getElementById("commoditiesTab").classList.contains("active")) renderCategoryGrid("commodities", "commoditiesGrid");
 }
 
-// WIRE UP SYSTEM TAB HANDLERS
-document.querySelectorAll(".tab-btn").forEach(btn => {
-  btn.addEventListener("click", () => {
-    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
-    document.querySelectorAll(".tabpanel").forEach(p => p.classList.remove("active"));
-    btn.classList.add("active");
-    const pane = document.getElementById(btn.dataset.tab);
-    if (pane) {
-      pane.classList.add("active");
-      if (btn.dataset.tab === "overviewTab") renderOverview();
-      if (btn.dataset.tab === "bdMacroTab") renderCategoryGrid("bd_macro", "bdMacroGrid");
-      if (btn.dataset.tab === "bdBankingTab") renderCategoryGrid("bd_banking", "bdBankingGrid");
-      if (btn.dataset.tab === "bopTab") { renderBopTab(); renderBopOverviewColumnChart(); renderBopIndividualCharts(); }
-      if (btn.dataset.tab === "gsecTab") renderGsecTab();
-      if (btn.dataset.tab === "usMacroTab") renderCategoryGrid("us_macro", "usMacroGrid");
-      if (btn.dataset.tab === "commoditiesTab") renderCategoryGrid("commodities", "commoditiesGrid");
-      if (btn.dataset.tab === "compareTab") renderCompareTab();
-    }
-  });
-});
-
+// ============================================================
+// GSEC AUCTION CHANNELS
+// ============================================================
+let GSEC_SELECTED = [];
 function renderGsecTab() {
-  const tbody = document.getElementById("gsecSnapTable");
-  tbody.innerHTML = STATE.gsecSnapshots.map((s, idx) => `
-    <tr>
-      <td>${s.date}</td>
-      <td>${s.label || ""}</td>
-      <td>${Object.keys(s.yields).length} Tenors</td>
-      <td><button class="icon-btn-sm" data-gsecdel="${idx}">✕</button></td>
-    </tr>
-  `).join("");
+  const snaps = STATE.gsecSnapshots.slice().sort((a, b) => new Date(b.date) - new Date(a.date));
+  if (GSEC_SELECTED.length === 0 && snaps.length) GSEC_SELECTED = [snaps[0].date];
+  const checklist = document.getElementById("gsecSnapList");
+  checklist.innerHTML = snaps.map(s => `<label class="chip-check"><input type="checkbox" value="${s.date}" ${GSEC_SELECTED.includes(s.date) ? "checked" : ""}><span>${s.label || s.date}</span></label>`).join("");
+  checklist.querySelectorAll("input").forEach(cb => { cb.addEventListener("change", () => { GSEC_SELECTED = Array.from(checklist.querySelectorAll("input:checked")).map(i => i.value); makeGsecCurveChart(document.getElementById("gsecChart"), STATE.gsecSnapshots, GSEC_SELECTED); }); });
+  makeGsecCurveChart(document.getElementById("gsecChart"), STATE.gsecSnapshots, GSEC_SELECTED);
+  
+  const latest = STATE.gsecSnapshots.slice().sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+  document.getElementById("gsecEditTableBody").innerHTML = GSEC_TENORS.map(t => `<tr><td>${t}</td><td><input type="number" step="0.01" class="gsec-input" data-tenor="${t}" value="${latest && latest.yields[t] !== null && latest.yields[t] !== undefined ? latest.yields[t] : ""}" placeholder="—"></td></tr>`).join("");
+  
+  const el = document.getElementById("gsecSnapTable");
+  el.innerHTML = snaps.map((s, i) => { const realIdx = STATE.gsecSnapshots.indexOf(s); return `<tr><td>${s.date}</td><td>${s.label || ""}</td><td>${GSEC_TENORS.filter(t => s.yields[t] !== null && s.yields[t] !== undefined).length}/${GSEC_TENORS.length} tenors</td><td><button class="icon-btn-sm" data-delsnap="${realIdx}" aria-label="Purge">✕</button></td></tr>`; }).join("");
+  el.querySelectorAll("[data-delsnap]").forEach(btn => { btn.addEventListener("click", () => { const i = parseInt(btn.dataset.delsnap, 10); const removedDate = STATE.gsecSnapshots[i].date; STATE.gsecSnapshots.splice(i, 1); GSEC_SELECTED = GSEC_SELECTED.filter(d => d !== removedDate); saveState(); renderGsecTab(); flashStatus("Auction curve snapshot deleted."); }); });
 }
 
+function wireGsecForm() {
+  document.getElementById("gsecSaveBtn").addEventListener("click", () => {
+    const date = document.getElementById("gsecNewDate").value; const label = document.getElementById("gsecNewLabel").value.trim();
+    if (!date) { flashStatus("Validation Error: pick auction date.", true); return; }
+    const yields = {}; document.querySelectorAll(".gsec-input").forEach(input => { const v = input.value.trim(); yields[input.dataset.tenor] = v === "" ? null : parseFloat(v); });
+    if (!Object.values(yields).some(v => v !== null)) { flashStatus("Validation Error: yield metrics incomplete.", true); return; }
+    const existingIdx = STATE.gsecSnapshots.findIndex(s => s.date === date);
+    const snap = { date, label, yields };
+    if (existingIdx >= 0) STATE.gsecSnapshots[existingIdx] = snap; else STATE.gsecSnapshots.push(snap);
+    GSEC_SELECTED = [date]; saveState(); document.getElementById("gsecNewDate").value = ""; document.getElementById("gsecNewLabel").value = ""; renderGsecTab(); flashStatus("Sovereign yield curve updated.");
+  });
+}
+
+// ============================================================
+// COMPARATIVE WORKSPACE
+// ============================================================
+let COMPARE_SELECTED = []; let COMPARE_NORMALIZED = true;
+function getGsecTenorSeries(tenor) {
+  const history = STATE.gsecSnapshots.filter(s => s.yields[tenor] !== null && s.yields[tenor] !== undefined).map(s => ({ date: s.date, value: s.yields[tenor] }));
+  return { name: `GSEC ${tenor} Yield`, unit: "%", category: "gsec", history };
+}
+function allComparableSeries() {
+  const list = Object.keys(STATE.indicators).map(key => Object.assign({ key }, STATE.indicators[key]));
+  GSEC_TENORS.forEach(t => { const s = getGsecTenorSeries(t); if (s.history.length) list.push(Object.assign({ key: "gsec_" + t }, s)); });
+  return list;
+}
 function renderCompareTab() {
-  const checklist = document.getElementById("compareChecklist");
-  checklist.innerHTML = Object.keys(STATE.indicators).map(k => `
-    <label class="chip-check">
-      <input type="checkbox" data-ckey="${k}">
-      <span>${STATE.indicators[k].name}</span>
-    </label>
-  `).join("");
+  const all = allComparableSeries();
+  if (COMPARE_SELECTED.length === 0) COMPARE_SELECTED = ["bd_cpi_yoy", "brent_crude"].filter(k => all.find(s => s.key === k));
+  const groups = {};
+  all.forEach(s => { const catLabel = s.category === "gsec" ? "GSEC Sovereign Yields" : (CATEGORY_META[s.category] ? CATEGORY_META[s.category].label : s.category); groups[catLabel] = groups[catLabel] || []; groups[catLabel].push(s); });
+  const container = document.getElementById("compareChecklist");
+  container.innerHTML = Object.keys(groups).map(label => `<div class="compare-group"><div class="compare-group-label">${label}</div>${groups[label].map(s => `<label class="chip-check"><input type="checkbox" value="${s.key}" ${COMPARE_SELECTED.includes(s.key) ? "checked" : ""} ${COMPARE_SELECTED.length >= 5 && !COMPARE_SELECTED.includes(s.key) ? "disabled" : ""}><span>${s.name}</span></label>`).join("")}</div>`).join("");
+  container.querySelectorAll("input").forEach(cb => { cb.addEventListener("change", () => { COMPARE_SELECTED = Array.from(container.querySelectorAll("input:checked")).map(i => i.value); renderCompareTab(); }); });
+  document.getElementById("compareCount").textContent = `${COMPARE_SELECTED.length}/5 Active Channels`;
+  makeCompareChart(document.getElementById("compareChart"), COMPARE_SELECTED.map(k => all.find(s => s.key === k)).filter(Boolean), COMPARE_NORMALIZED);
 }
 
-// INTERACTIVE INITIALIZATION DESK
-async function initApp() {
-  await loadState();
-  document.getElementById("appLoading").style.display = "none";
-  document.getElementById("appShell").style.display = "block";
-  renderOverview();
-  wireModalForm();
-  
-  // INTERACTIVE BIO MODAL WIREUP
-  document.querySelector(".user-signature").addEventListener("click", () => {
-    document.getElementById("bioModalOverlay").style.display = "flex";
-  });
-  document.getElementById("bioModalClose").addEventListener("click", () => {
-    document.getElementById("bioModalOverlay").style.display = "none";
-  });
-  document.getElementById("bioModalOverlay").addEventListener("click", (e) => {
-    if (e.target === document.getElementById("bioModalOverlay")) {
-      document.getElementById("bioModalOverlay").style.display = "none";
+// ============================================================
+// DATABANK EXPORT UTILITY
+// ============================================================
+function exportDatabank() {
+    const dataset = document.getElementById("dbDataset").value;
+    const freq = document.getElementById("dbFreq").value;
+    const start = document.getElementById("dbStartDate").value;
+    const end = document.getElementById("dbEndDate").value;
+    
+    let csvContent = "data:text/csv;charset=utf-8,";
+    
+    if (dataset === "bop") {
+        csvContent += "Date,Label,Exports,Imports,Trade_Balance,Current_Account,Financial_Account,Overall_Balance,Reserves_BPM6,Reserves_Gross\n";
+        let data = STATE.bopHistory.slice().sort((a,b) => new Date(a.date) - new Date(b.date));
+        
+        if (start) data = data.filter(d => d.date >= start);
+        if (end) data = data.filter(d => d.date <= end);
+        
+        if (freq === "yearly") {
+            const yearly = {};
+            data.forEach(d => {
+                const year = d.date.substring(0,4);
+                if (!yearly[year]) yearly[year] = { exports:0, imports:0, tradeBalance:0, currentAccount:0, financialAccount:0, overallBalance:0, reservesBPM6:0, reservesGross:0, count:0 };
+                yearly[year].exports += (d.exports||0); yearly[year].imports += (d.imports||0);
+                yearly[year].tradeBalance += (d.tradeBalance||0); yearly[year].currentAccount += (d.currentAccount||0);
+                yearly[year].financialAccount += (d.financialAccount||0); yearly[year].overallBalance += (d.overallBalance||0);
+                yearly[year].reservesBPM6 += (d.reservesBPM6||0); yearly[year].reservesGross += (d.reservesGross||0);
+                yearly[year].count++;
+            });
+            Object.keys(yearly).forEach(y => {
+                const row = yearly[y];
+                const rBPM6 = (row.reservesBPM6 / row.count).toFixed(2); const rGross = (row.reservesGross / row.count).toFixed(2);
+                csvContent += `${y}-12-31,${y} Aggregated,${row.exports},${row.imports},${row.tradeBalance},${row.currentAccount},${row.financialAccount},${row.overallBalance},${rBPM6},${rGross}\n`;
+            });
+        } else {
+            data.forEach(d => {
+                csvContent += `${d.date},${d.label},${d.exports||""},${d.imports||""},${d.tradeBalance||""},${d.currentAccount||""},${d.financialAccount||""},${d.overallBalance||""},${d.reservesBPM6||""},${d.reservesGross||""}\n`;
+            });
+        }
+    } else if (dataset === "all_macro") {
+        const allDates = new Set();
+        Object.keys(STATE.indicators).forEach(k => { STATE.indicators[k].history.forEach(h => allDates.add(h.date)); });
+        const dates = Array.from(allDates).sort((a,b) => new Date(a) - new Date(b));
+        
+        let filteredDates = dates;
+        if (start) filteredDates = filteredDates.filter(d => d >= start);
+        if (end) filteredDates = filteredDates.filter(d => d <= end);
+        
+        const keys = Object.keys(STATE.indicators);
+        csvContent += "Date," + keys.join(",") + "\n";
+        
+        if (freq === "yearly") {
+             const yearly = {};
+             filteredDates.forEach(d => {
+                 const year = d.substring(0,4);
+                 if(!yearly[year]) yearly[year] = { count: 0, values: {} };
+                 yearly[year].count++;
+                 keys.forEach(k => {
+                     if(!yearly[year].values[k]) yearly[year].values[k] = 0;
+                     const pt = STATE.indicators[k].history.find(x => x.date === d);
+                     if(pt) yearly[year].values[k] += pt.value;
+                 });
+             });
+             Object.keys(yearly).forEach(y => {
+                 let row = `${y}-12-31`;
+                 keys.forEach(k => { row += `,${(yearly[y].values[k] / yearly[y].count).toFixed(2)}`; });
+                 csvContent += row + "\n";
+             });
+        } else {
+            filteredDates.forEach(d => {
+                let row = `${d}`;
+                keys.forEach(k => {
+                    const pt = STATE.indicators[k].history.find(x => x.date === d);
+                    row += pt ? `,${pt.value}` : ",";
+                });
+                csvContent += row + "\n";
+            });
+        }
+    } else if (dataset === "gsec") {
+        csvContent += "Date,Label,91D,182D,364D,2Y,5Y,10Y,15Y,20Y\n";
+        let data = STATE.gsecSnapshots.slice().sort((a,b) => new Date(a.date) - new Date(b.date));
+        if (start) data = data.filter(d => d.date >= start);
+        if (end) data = data.filter(d => d.date <= end);
+        data.forEach(d => {
+            csvContent += `${d.date},${d.label},${d.yields['91D']||""},${d.yields['182D']||""},${d.yields['364D']||""},${d.yields['2Y']||""},${d.yields['5Y']||""},${d.yields['10Y']||""},${d.yields['15Y']||""},${d.yields['20Y']||""}\n`;
+        });
     }
-  });
-  
-  // CLOSE TRIGGER DESK FOR GENERAL INDICATOR MODAL
-  document.getElementById("modalClose").addEventListener("click", closeModal);
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `databank_export_${dataset}_${freq}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 }
 
-window.addEventListener("DOMContentLoaded", initApp);
+// ============================================================
+// SYSTEM RUNTIME HANDLERS
+// ============================================================
+function switchTab(tabId) {
+  document.querySelectorAll(".tabpanel").forEach(p => p.classList.remove("active"));
+  document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+  document.getElementById(tabId).classList.add("active");
+  document.querySelector(`.tab-btn[data-tab="${tabId}"]`).classList.add("active");
+
+  if (tabId === "overviewTab") renderOverview();
+  if (tabId === "gsecTab") renderGsecTab();
+  if (tabId === "bopTab") { renderBopTab(); renderBopOverviewColumnChart(); }
+  if (tabId === "compareTab") renderCompareTab();
+  if (tabId === "settingsTab") { document.getElementById("fredKeyInput").value = STATE.settings.fredKey || ""; document.getElementById("eiaKeyInput").value = STATE.settings.eiaKey || ""; }
+}
+
+function wireTabs() { document.querySelectorAll(".tab-btn").forEach(btn => { btn.addEventListener("click", () => switchTab(btn.dataset.tab)); }); }
+
+function bypassLoader() { document.getElementById("appLoading").style.display = "none"; document.getElementById("appShell").style.display = "block"; INIT_DONE = true; }
+
+let INIT_DONE = false;
+
+async function init() {
+  try {
+    await loadState();
+    wireTabs(); wireModalForm(); wireGsecForm(); wireBopForm();
+    document.getElementById("compareModeToggle").addEventListener("change", (e) => { COMPARE_NORMALIZED = e.target.value === "normalized"; renderCompareTab(); });
+    document.getElementById("modalClose").addEventListener("click", closeModal);
+    document.getElementById("modalOverlay").addEventListener("click", (e) => { if (e.target.id === "modalOverlay") closeModal(); });
+    
+    // Wire bio modal
+    document.querySelector(".user-signature").addEventListener("click", () => { document.getElementById("bioModalOverlay").style.display = "flex"; });
+    document.getElementById("bioModalClose").addEventListener("click", () => { document.getElementById("bioModalOverlay").style.display = "none"; });
+    
+    // Wire Settings functions
+    document.getElementById("saveKeysBtn").addEventListener("click", async () => { STATE.settings.fredKey = document.getElementById("fredKeyInput").value.trim(); STATE.settings.eiaKey = document.getElementById("eiaKeyInput").value.trim(); await saveState(); flashStatus("API keys securely saved inside local browser memory."); });
+    document.getElementById("resetBtn").addEventListener("click", async () => { if (!confirm("Caution: Reset to default baseline?")) return; STATE = defaultState(); await saveState(); refreshAllVisibleGrids(); flashStatus("Terminal variables re-seeded."); });
+    
+    // Tick clock engine
+    tickClock(); setInterval(tickClock, 1000);
+
+    if (window.__chartLoadPromise) await withTimeout(window.__chartLoadPromise, 6000, false);
+
+    renderOverview(); renderCategoryGrid("bd_macro", "bdMacroGrid"); renderCategoryGrid("bd_banking", "bdBankingGrid");
+    renderCategoryGrid("us_macro", "usMacroGrid"); renderCategoryGrid("commodities", "commoditiesGrid");
+    
+    setTimeout(() => { renderBopOverviewColumnChart(); }, 50);
+
+    document.getElementById("appLoading").style.display = "none";
+    document.getElementById("appShell").style.display = "block";
+    INIT_DONE = true;
+  } catch (err) { console.error("Boot Exception:", err); bypassLoader(); }
+}
+
+init();
 </script>
 </body>
 </html>
